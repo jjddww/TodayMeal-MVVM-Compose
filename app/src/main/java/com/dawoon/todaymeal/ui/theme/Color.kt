@@ -13,3 +13,15 @@ val Pink40 = Color(0xFF7D5260)
 val BorderGreen = Color(0xFFCEE8CE)
 val TextDeepGreen = Color(0xFF9DB589)
 val TextLightGreen = Color(0xFFB8D9C0)
+
+val LightText = Color(0xFF607D72)
+
+val DarkText = Color(0xFFE8EDEB)
+
+val LightBackground = Color(0xFFDAEEDC)
+
+val DarkBackground = Color(0xFF1C1F1E)
+
+val LightList = Color(0xFFFFFFFF)
+
+val DarkList = Color(0xFF2A3A33)

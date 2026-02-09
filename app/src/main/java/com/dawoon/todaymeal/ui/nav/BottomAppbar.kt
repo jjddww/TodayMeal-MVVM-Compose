@@ -1,6 +1,8 @@
 package com.dawoon.todaymeal.ui.nav
 
+import android.R.attr.layout
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,6 +23,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,8 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
@@ -40,15 +51,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.dawoon.todaymeal.R
 import com.dawoon.todaymeal.ui.theme.BorderGreen
+import com.dawoon.todaymeal.ui.theme.DarkBackground
+import com.dawoon.todaymeal.ui.theme.LightBackground
 import com.dawoon.todaymeal.ui.theme.TextDeepGreen
 import com.dawoon.todaymeal.ui.theme.TextLightGreen
 
 @Composable
-fun BottomAppBar(navController: NavHostController,
-                 onHeightPxChanged: (Int) -> Unit) {
+fun BottomAppBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val isDark = isSystemInDarkTheme()
+    val bgColor = if (isDark) DarkBackground else LightBackground
 
     val topOnlyShape = RoundedCornerShape(
         topStart = 24.dp,
@@ -59,16 +72,51 @@ fun BottomAppBar(navController: NavHostController,
 
     BottomAppBar(
         modifier = Modifier
+            .fillMaxWidth()
             .clip(topOnlyShape)
-            .onSizeChanged { onHeightPxChanged(it.height) }
-            .border(
-                width = 1.dp,
-                color = BorderGreen,
-                shape = topOnlyShape
-            ),
-        containerColor = Color.Transparent,
+            .drawWithContent {
+                drawContent()
+                val strokeWidth = 1.dp.toPx()
+                val cornerRadius = 24.dp.toPx()
+                val inset = strokeWidth / 2f
+
+                val path = Path().apply {
+                    moveTo(inset, size.height)
+                    lineTo(inset, cornerRadius)
+
+                    arcTo(
+                        rect = Rect(inset, inset, inset + cornerRadius * 2, inset + cornerRadius * 2),
+                        startAngleDegrees = 180f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+
+                    lineTo(size.width - cornerRadius - inset, inset)
+
+                    arcTo(
+                        rect = Rect(
+                            size.width - cornerRadius * 2 - inset,
+                            inset,
+                            size.width - inset,
+                            inset + cornerRadius * 2
+                        ),
+                        startAngleDegrees = 270f,
+                        sweepAngleDegrees = 90f,
+                        forceMoveTo = false
+                    )
+
+                    lineTo(size.width - inset, size.height) //하단선 제외하고 그리기
+                }
+
+                drawPath(
+                    path = path,
+                    color = BorderGreen,
+                    style = Stroke(width = strokeWidth)
+                )
+            },
+        containerColor = if (isDark) DarkBackground else Color.White,
         tonalElevation = 0.dp
-    ) {
+    ){
         bottomItems.take(2).forEach { item ->
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
             val selectedColor = if (isDark) TextLightGreen else TextDeepGreen
@@ -159,11 +207,10 @@ fun BottomAppBar(navController: NavHostController,
 @Composable
 fun HomeFab(
     navController: NavHostController,
-    bottomBarHeight: Dp
 ) {
     Box(
         modifier = Modifier
-            .offset(y = bottomBarHeight * 0.57f)
+            .offset(y = 80.dp)
             .size(110.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
