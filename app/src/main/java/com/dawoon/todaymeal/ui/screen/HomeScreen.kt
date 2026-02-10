@@ -1,5 +1,8 @@
 package com.dawoon.todaymeal.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,65 +18,49 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dawoon.todaymeal.R
+import com.dawoon.todaymeal.ui.theme.DarkBackground
+import com.dawoon.todaymeal.ui.theme.DarkText
+import com.dawoon.todaymeal.ui.theme.LightText
 import com.dawoon.todaymeal.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsState()
-
-    var query by rememberSaveable { mutableStateOf("") }
+    val isDark = isSystemInDarkTheme()
+    val textColor = if (isDark) DarkText else LightText
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
     ) {
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            label = { Text("학교 이름") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = { viewModel.searchSchool(query) },
-            enabled = !state.loading
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(110.dp)
+                    .background(if (isDark) DarkBackground else Color.White)
         ) {
-            Text("검색")
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "고등학교",
+                modifier =
+                    Modifier
+                        .align(Alignment.Center),
+                color = textColor,
+                fontSize = 24.sp,
+                fontFamily = FontFamily(
+                    Font(resId = R.font.suite_extrabold)
+                ))
 
-        // 로딩
-        if (state.loading) {
-            Text("로딩 중...")
-        }
-
-        // 에러
-        state.errorMessage?.let {
-            Text(text = it)
-        }
-
-        // ✅ 결과값 그냥 Text로 출력
-        if (state.items.isNotEmpty()) {
-            Text(
-                text = state.items.joinToString("\n") { school ->
-                    """
-                    학교명: ${school.SCHUL_NM}
-                    교육청: ${school.ATPT_OFCDC_SC_NM}
-                    학교코드: ${school.SD_SCHUL_CODE}
-                    ------------------------
-                    """.trimIndent()
-                }
-            )
         }
     }
 }
