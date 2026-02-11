@@ -41,8 +41,10 @@ import com.dawoon.todaymeal.ui.theme.DarkSubBg
 import com.dawoon.todaymeal.ui.theme.DarkText
 import com.dawoon.todaymeal.ui.theme.LightSubBg
 import com.dawoon.todaymeal.ui.theme.LightText
+import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
+import java.sql.Date
 
 @Composable
 fun HomeScreen(
@@ -61,8 +63,21 @@ fun HomeScreen(
         mealData.items.size
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.getMealService()
+    LaunchedEffect(pagerState.currentPage) {
+        mealData.items.getOrNull(pagerState.currentPage)?.let { meal ->
+            viewModel.updateSelectedDate(meal.MLSV_YMD ?: "")
+        }
+    }
+
+    LaunchedEffect(mealData.items) {
+        if (mealData.items.isNotEmpty()) {
+            val targetDateStr = DateCalculator.formatForApi(viewModel.selectedDate)
+            val targetIndex = mealData.items.indexOfFirst { it.MLSV_YMD == targetDateStr }
+
+            if (targetIndex != -1) {
+                pagerState.scrollToPage(targetIndex)
+            }
+        }
     }
 
     Column(
@@ -138,7 +153,7 @@ fun HomeScreen(
                     )
 
                     Text(
-                        text = "2월 11일 (수)",
+                        text = DateCalculator.formatToDisplay(viewModel.selectedDate),
                         color = Color.White,
                         fontSize = 22.sp,
                         fontFamily = FontFamily(
@@ -184,7 +199,6 @@ fun HomeScreen(
                     pagerState = pagerState,
                 )
             }
-
         }
     }
 }
