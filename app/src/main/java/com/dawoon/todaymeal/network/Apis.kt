@@ -26,8 +26,10 @@ interface Apis {
         @Query("pSize") pSize: Int = 100,
         @Query("ATPT_OFCDC_SC_CODE") atptCode: String,
         @Query("SD_SCHUL_CODE") schoolCode: String,
-        @Query("MLSV_YMD") ymd: String,
+//        @Query("MLSV_YMD") ymd: String,
         @Query("MMEAL_SC_CODE") mealCode: String? = null,
+        @Query("MLSV_FROM_YMD") fromYmd: String? = null,
+        @Query("MLSV_TO_YMD") toYmd: String? = null
     ): Response<MealServiceDietInfoResponseDto>
 
 

@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 
                 val isDark = isSystemInDarkTheme()
                 val barBg = if (isDark) DarkBackground else LightBackground
-                val scaffoldBg = if (route == "notice") barBg else Color.Transparent
+//                val scaffoldBg = if (route == "notice") barBg else Color.Transparent
 
                 val noRippleConfiguration = RippleConfiguration(
                     color = Color.Transparent,
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         modifier = Modifier
                             .fillMaxSize(),
-                        containerColor = scaffoldBg,
+                        containerColor = barBg,
                         bottomBar = {
                             BottomAppBar(
                                 navController)

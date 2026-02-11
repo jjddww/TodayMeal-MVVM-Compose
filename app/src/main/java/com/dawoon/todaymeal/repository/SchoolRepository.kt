@@ -3,6 +3,8 @@ package com.dawoon.todaymeal.repository
 import com.dawoon.todaymeal.network.ApiResult
 import com.dawoon.todaymeal.network.Apis
 import com.dawoon.todaymeal.network.mapSuccess
+import com.dawoon.todaymeal.network.model.MealRowDto
+import com.dawoon.todaymeal.network.model.MealServiceDietInfoResponseDto
 import com.dawoon.todaymeal.network.model.NeisResultDto
 import com.dawoon.todaymeal.network.model.SchoolInfoResponseDto
 import com.dawoon.todaymeal.network.model.SchoolRowDto
@@ -42,18 +44,45 @@ class SchoolRepository @Inject constructor(
         }
     }
 
-    suspend fun searchSchool(schoolName: String): ApiResult<List<SchoolRowDto>> {
+//    suspend fun searchSchool(schoolName: String): ApiResult<List<SchoolRowDto>> {
+//        return safeCall(
+//            call = { api.getSchoolInfo(key = apiKey, schoolName = schoolName) },
+//            resultExtractor = { body: SchoolInfoResponseDto ->
+//                body.schoolInfo
+//                    ?.firstOrNull()
+//                    ?.head
+//                    ?.firstOrNull { it.RESULT != null }
+//                    ?.RESULT
+//            }
+//        ).mapSuccess { dto: SchoolInfoResponseDto ->
+//            dto.schoolInfo?.getOrNull(1)?.row.orEmpty()
+//        }
+//    }
+
+    suspend fun getMealServiceInfo(atptCode: String,
+                                   schoolCode: String,
+                                   mealCode: String,
+                                   fromYmd: String?,
+                                   toYmd: String?): ApiResult<List<MealRowDto>> {
         return safeCall(
-            call = { api.getSchoolInfo(key = apiKey, schoolName = schoolName) },
-            resultExtractor = { body: SchoolInfoResponseDto ->
-                body.schoolInfo
+            call = { api.getMeal(
+                key = apiKey,
+                atptCode = atptCode,
+                schoolCode = schoolCode,
+                mealCode = mealCode,
+                fromYmd = fromYmd,
+                toYmd = toYmd
+            )},
+            resultExtractor = { body: MealServiceDietInfoResponseDto ->
+                body.mealServiceDietInfo
                     ?.firstOrNull()
                     ?.head
-                    ?.firstOrNull { it.RESULT != null }
+                    ?.firstOrNull() { it.RESULT != null }
                     ?.RESULT
             }
-        ).mapSuccess { dto: SchoolInfoResponseDto ->
-            dto.schoolInfo?.getOrNull(1)?.row.orEmpty()
+        ).mapSuccess { dto: MealServiceDietInfoResponseDto ->
+            dto.mealServiceDietInfo?.getOrNull(1)?.row.orEmpty()
         }
+
     }
 }

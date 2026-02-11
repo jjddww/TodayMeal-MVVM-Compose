@@ -27,3 +27,5 @@ val LightList = Color(0xFFFFFFFF)
 val DarkList = Color(0xFF2A3A33)
 
 val DarkSubBg = Color(0xFF1E2622)
+
+val LightSubBg = Color(0xFFB8D9C0)
