@@ -31,11 +31,14 @@ class HomeViewModel @Inject constructor(
     private val repository: SchoolRepository
 ) : ViewModel() {
 
+    val mockToday = "20250514"
     private val _state = MutableStateFlow(MealServiceUiState())
     val state = _state.asStateFlow()
 
     var selectedMealType by mutableStateOf("2")
-    var selectedDate by mutableStateOf(Date())
+//    var selectedDate by mutableStateOf(Date())
+
+    var selectedDate by mutableStateOf(DateCalculator.parseApiDate(mockToday) ?: Date()) /** 임시 데이터!! **/
 
     private var currentRange: Pair<String, String>? = null
 
@@ -45,7 +48,9 @@ class HomeViewModel @Inject constructor(
 
     init {
         val todayStr = DateCalculator.formatForApi(Date())
-        val range = DateCalculator.getDateRange(todayStr, 60)
+//        val range = DateCalculator.getDateRange(todayStr, 60)
+        /** 임시 데이터!! **/
+        val range = DateCalculator.getDateRange(mockToday, 60)
         fetchMealData(range.first, range.second)
     }
 
