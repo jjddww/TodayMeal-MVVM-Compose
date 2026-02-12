@@ -68,4 +68,18 @@ object DateCalculator {
         }
         return dates
     }
+
+    fun formatDisplayDate(dateStr: String?): String {
+        if (dateStr.isNullOrBlank()) return ""
+
+        return try {
+            val inputFormat = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+            val date = inputFormat.parse(dateStr)
+            val outputFormat = SimpleDateFormat("M월 d일 (E)", Locale.KOREAN)
+
+            date?.let { outputFormat.format(it) } ?: ""
+        } catch (e: Exception) {
+            dateStr
+        }
+    }
 }

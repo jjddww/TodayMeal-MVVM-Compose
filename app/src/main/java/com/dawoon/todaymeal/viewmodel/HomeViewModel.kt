@@ -33,59 +33,50 @@ class HomeViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MealServiceUiState())
     val state = _state.asStateFlow()
-    var selectedMealType by mutableStateOf("2") // 기본값 점심
-    lateinit var dates: Pair<String, String>
+
+    var selectedMealType by mutableStateOf("2")
     var selectedDate by mutableStateOf(Date())
 
     private var currentRange: Pair<String, String>? = null
 
-    val errorData = listOf(
-        MealRowDto(
-            MMEAL_SC_NM = "문제가 \n발생하였습니다.\n잠시 후 \n다시 시도해주세요"
-        )
+    private val errorData = listOf(
+        MealRowDto(MMEAL_SC_NM = "문제가 \n발생하였습니다.\n잠시 후 \n다시 시도해주세요")
     )
 
     init {
-        val today = DateCalculator.formatForApi(Date())
-        val range = DateCalculator.getDateRange(today, 60)
-        currentRange = range
+        val todayStr = DateCalculator.formatForApi(Date())
+        val range = DateCalculator.getDateRange(todayStr, 60)
         fetchMealData(range.first, range.second)
     }
 
     var showNutritionDialog by mutableStateOf(false)
         private set
 
-    fun openNutritionDialog() {
-        showNutritionDialog = true
-    }
-
-    fun closeNutritionDialog() {
-        showNutritionDialog = false
-    }
+    fun openNutritionDialog() { showNutritionDialog = true }
+    fun closeNutritionDialog() { showNutritionDialog = false }
 
     fun updateSelectedDate(dateStr: String) {
-        val date = DateCalculator.parseApiDate(dateStr)
-        if (date != null) {
-            selectedDate = date
+        DateCalculator.parseApiDate(dateStr)?.let {
+            selectedDate = it
         }
     }
 
     fun updateMealType(newType: String) {
         if (selectedMealType == newType) return
-
         selectedMealType = newType
 
-        val from = currentRange?.first ?: dates.first
-        val to = currentRange?.second ?: dates.second
-
-        fetchMealData(from, to)
+        // currentRange가 null일 가능성을 대비해 안전하게 호출
+        currentRange?.let {
+            fetchMealData(it.first, it.second)
+        }
     }
 
     fun fetchMealData(from: String, to: String) {
-        currentRange = Pair(from, to) // 현재 범위 저장
+        currentRange = Pair(from, to)
 
         viewModelScope.launch {
-            _state.value = _state.value.copy(loading = true)
+            // 로딩 시작 시 기존 데이터를 유지하면서 상태만 변경 (화면 깜빡임 방지)
+            _state.value = _state.value.copy(loading = true, errorMessage = null)
 
             repository.getMealServiceInfo(
                 atptCode = "J10",
@@ -96,7 +87,6 @@ class HomeViewModel @Inject constructor(
             ).onSuccess { apiList ->
                 val allDates = DateCalculator.getAllDatesInRange(from, to)
 
-                /** 주말, 공휴일, 급식없는 날 등 데이터가 들어오지 않는 날 처리 **/
                 val fullList = allDates.map { dateStr ->
                     apiList.find { it.MLSV_YMD == dateStr } ?: MealRowDto(
                         MLSV_YMD = dateStr,
@@ -107,21 +97,26 @@ class HomeViewModel @Inject constructor(
                     )
                 }
                 _state.value = MealServiceUiState(items = fullList, loading = false)
+            }.onError { code, msg ->
+                _state.value = MealServiceUiState(
+                    loading = false,
+                    items = errorData,
+                    errorMessage = "API ERROR $code: $msg"
+                )
+            }.onFailure { t ->
+                _state.value = MealServiceUiState(
+                    loading = false,
+                    items = errorData,
+                    errorMessage = t.message ?: "Network Failure"
+                )
             }
-                .onError { code, msg ->
-                    _state.value = MealServiceUiState(
-                        loading = false,
-                        items = errorData,
-                        errorMessage = "API ERROR $code: $msg"
-                    )
-                }
-                .onFailure { t ->
-                    _state.value = MealServiceUiState(
-                        loading = false,
-                        items = errorData,
-                        errorMessage = t.message ?: "Network Failure"
-                    )
-                }
         }
+    }
+
+    // 혹시라도 오늘로 돌아가기 버튼을 만든다면 사용
+    val initialPageIndex = derivedStateOf {
+        val today = DateCalculator.formatForApi(Date())
+        val index = state.value.items.indexOfFirst { it.MLSV_YMD == today }
+        if (index == -1) 0 else index
     }
 }

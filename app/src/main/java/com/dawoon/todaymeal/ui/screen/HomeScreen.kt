@@ -53,7 +53,6 @@ import com.dawoon.todaymeal.ui.theme.LightText
 import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
-import java.sql.Date
 
 @Composable
 fun HomeScreen(
