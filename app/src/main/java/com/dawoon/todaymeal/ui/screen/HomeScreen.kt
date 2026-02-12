@@ -1,8 +1,11 @@
 package com.dawoon.todaymeal.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,9 +41,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.dawoon.todaymeal.R
 import com.dawoon.todaymeal.ui.etc.MealHorizontalPager
 import com.dawoon.todaymeal.ui.etc.MealTypeDropdown
+import com.dawoon.todaymeal.ui.etc.NutritionDialog
+import com.dawoon.todaymeal.ui.theme.BorderGreen
 import com.dawoon.todaymeal.ui.theme.DarkBackground
+import com.dawoon.todaymeal.ui.theme.DarkList
 import com.dawoon.todaymeal.ui.theme.DarkSubBg
 import com.dawoon.todaymeal.ui.theme.DarkText
+import com.dawoon.todaymeal.ui.theme.LightList
 import com.dawoon.todaymeal.ui.theme.LightSubBg
 import com.dawoon.todaymeal.ui.theme.LightText
 import com.dawoon.todaymeal.util.DateCalculator
@@ -54,6 +63,7 @@ fun HomeScreen(
     val textColor = if (isDark) DarkText else LightText
     val headerBg = if (isDark) DarkBackground else Color.White // 상태바/헤더 배경 (흰/검)
     val subColor = if (isDark) DarkSubBg else LightSubBg
+    val listColor = if (isDark) DarkList else LightList
     val mealData by viewModel.state.collectAsState()
     val selectedType = viewModel.selectedMealType
     val scope = rememberCoroutineScope()
@@ -78,6 +88,18 @@ fun HomeScreen(
                 pagerState.scrollToPage(targetIndex)
             }
         }
+    }
+
+    val currentMeal = mealData.items.getOrNull(pagerState.currentPage)
+
+    // 다이얼로그 표시 로직
+    if (viewModel.showNutritionDialog) {
+        NutritionDialog(
+            // currentMeal에서 영양정보(NTR_INFO)를 꺼내 전달
+            carInfo = currentMeal?.CAL_INFO ?: "정보 없음",
+            nutritionInfo = currentMeal?.NTR_INFO ?: "영양 정보가 없습니다.",
+            onDismiss = { viewModel.closeNutritionDialog() }
+        )
     }
 
     Column(
@@ -131,7 +153,7 @@ fun HomeScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 24.dp)
+                    .padding(top = 24.dp),
             ) {
 
                 Row(
@@ -198,7 +220,44 @@ fun HomeScreen(
                     .fillMaxWidth(),
                     pagerState = pagerState,
                 )
+
+
+                Box(
+                    modifier = Modifier
+                        .width(156.dp)
+                        .height(58.dp)
+                        .background(color = listColor, shape = RoundedCornerShape(18.dp))
+                        .border(width = 1.dp, color = BorderGreen, shape = RoundedCornerShape(18.dp))
+                        .align(Alignment.CenterHorizontally)
+                        .clickable {
+                            if (currentMeal != null) {
+                                viewModel.openNutritionDialog()
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Row(modifier = Modifier
+                        .fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center){
+                        Image(painter = painterResource(R.drawable.icn_nutrition),
+                            contentDescription = "nutrition icon")
+
+                        Spacer(modifier = Modifier.width(11.dp))
+
+                        Text(
+                            text = "영양정보",
+                            fontSize = 22.sp,
+                            fontFamily = FontFamily(Font(R.font.suite_bold)),
+                            color = textColor,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
+                }
             }
         }
+
     }
 }

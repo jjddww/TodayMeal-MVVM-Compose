@@ -36,11 +36,7 @@ class HomeViewModel @Inject constructor(
     var selectedMealType by mutableStateOf("2") // 기본값 점심
     lateinit var dates: Pair<String, String>
     var selectedDate by mutableStateOf(Date())
-    val initialPageIndex = derivedStateOf {
-        val today = DateCalculator.formatForApi(Date()) // 오늘 날짜 "20250211"
-        val index = state.value.items.indexOfFirst { it.MLSV_YMD == today }
-        if (index == -1) 0 else index
-    }
+
     private var currentRange: Pair<String, String>? = null
 
     val errorData = listOf(
@@ -54,6 +50,17 @@ class HomeViewModel @Inject constructor(
         val range = DateCalculator.getDateRange(today, 60)
         currentRange = range
         fetchMealData(range.first, range.second)
+    }
+
+    var showNutritionDialog by mutableStateOf(false)
+        private set
+
+    fun openNutritionDialog() {
+        showNutritionDialog = true
+    }
+
+    fun closeNutritionDialog() {
+        showNutritionDialog = false
     }
 
     fun updateSelectedDate(dateStr: String) {
