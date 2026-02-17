@@ -48,7 +48,6 @@ fun WeeklyMenuScreen(viewModel: WeeklyMenuViewModel = hiltViewModel()) {
     val listState = rememberLazyListState()
 
     LaunchedEffect(selectedIndex) {
-        // 선택된 인덱스가 바뀌면 해당 위치로 부드럽게 스크롤
         listState.animateScrollToItem(selectedIndex)
     }
 

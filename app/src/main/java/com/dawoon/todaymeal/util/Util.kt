@@ -82,4 +82,31 @@ object DateCalculator {
             dateStr
         }
     }
+
+    fun getRelativeMonth(baseDate: Date, monthOffset: Int): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = baseDate
+        calendar.add(Calendar.MONTH, monthOffset)
+        return calendar.time
+    }
+
+    fun getMonthRange(date: Date): Pair<String, String> {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
+
+        // 1일 설정
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val start = sdf.format(calendar.time)
+
+        // 해당 월의 마지막 날 설정
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        val end = sdf.format(calendar.time)
+
+        return Pair(start, end)
+    }
+
+    fun formatMonth(date: Date): String {
+        return SimpleDateFormat("M월", Locale.getDefault()).format(date)
+    }
 }

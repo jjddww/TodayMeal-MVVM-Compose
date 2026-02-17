@@ -33,6 +33,20 @@ interface Apis {
     ): Response<MealServiceDietInfoResponseDto>
 
 
+    @GET("SchoolSchedule")
+    suspend fun getSchoolSchedule(
+        @Query("KEY") key: String,
+        @Query("Type") type: String = "json",
+
+        @Query("ATPT_OFCDC_SC_CODE") atptCode: String,
+        @Query("SD_SCHUL_CODE") schoolCode: String,
+        @Query("AA_FROM_YMD") fromYmd: String? = null,
+        @Query("AA_TO_YMD") toYmd: String? = null,
+
+        @Query("AY") ay: String? = null          // 학년도
+    ): Response<SchoolScheduleResponseDto>
+
+
 //    interface NeisApiService {
 //
 //        // ======================
@@ -105,9 +119,9 @@ interface Apis {
 //        ): Response<HisTimetableResponseDto>
 //
 //
-//        // ======================
-//        // 학사일정
-//        // ======================
+        // ======================
+        // 학사일정
+        // ======================
 //        @GET("SchoolSchedule")
 //        suspend fun getSchoolSchedule(
 //            @Query("KEY") key: String,

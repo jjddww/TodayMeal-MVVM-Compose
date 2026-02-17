@@ -94,7 +94,6 @@ fun HomeScreen(
     // 다이얼로그 표시 로직
     if (viewModel.showNutritionDialog) {
         NutritionDialog(
-            // currentMeal에서 영양정보(NTR_INFO)를 꺼내 전달
             carInfo = currentMeal?.CAL_INFO ?: "정보 없음",
             nutritionInfo = currentMeal?.NTR_INFO ?: "영양 정보가 없습니다.",
             onDismiss = { viewModel.closeNutritionDialog() }
