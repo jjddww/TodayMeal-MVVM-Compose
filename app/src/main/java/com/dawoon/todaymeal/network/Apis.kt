@@ -47,6 +47,52 @@ interface Apis {
     ): Response<SchoolScheduleResponseDto>
 
 
+
+    @GET("elsTimetable")
+    suspend fun getElsTimetable(
+        @Query("KEY") key: String,
+        @Query("Type") type: String = "json",
+        @Query("ATPT_OFCDC_SC_CODE") atptCode: String,
+        @Query("SD_SCHUL_CODE") schoolCode: String,
+        @Query("GRADE") grade: String,          // 학년
+        @Query("CLASS_NM") classNm: String,      // 반
+        @Query("TI_FROM_YMD") fromYmd: String,
+        @Query("TI_TO_YMD") toYmd: String,
+    ): Response<ElsTimetableResponseDto>
+
+
+    // ======================
+    // 중학교 시간표
+    // ======================
+    @GET("misTimetable")
+    suspend fun getMisTimetable(
+        @Query("KEY") key: String,
+        @Query("Type") type: String = "json",
+        @Query("ATPT_OFCDC_SC_CODE") atptCode: String,
+        @Query("SD_SCHUL_CODE") schoolCode: String,
+        @Query("GRADE") grade: String,
+        @Query("CLASS_NM") classNm: String,
+        @Query("TI_FROM_YMD") fromYmd: String,
+        @Query("TI_TO_YMD") toYmd: String
+    ): Response<MisTimetableResponseDto>
+
+
+    // ======================
+    // 고등학교 시간표
+    // ======================
+    @GET("hisTimetable")
+    suspend fun getHisTimetable(
+        @Query("KEY") key: String,
+        @Query("Type") type: String = "json",
+        @Query("ATPT_OFCDC_SC_CODE") atptCode: String,
+        @Query("SD_SCHUL_CODE") schoolCode: String,
+        @Query("GRADE") grade: String,
+        @Query("CLASS_NM") classNm: String,
+        @Query("TI_FROM_YMD") fromYmd: String,
+        @Query("TI_TO_YMD") toYmd: String,
+    ): Response<HisTimetableResponseDto>
+
+
 //    interface NeisApiService {
 //
 //        // ======================

@@ -56,8 +56,6 @@ fun ScheduleScreen(
     val isDark = isSystemInDarkTheme()
     val textColor = if (isDark) DarkText else LightText
     val bgColor = if (isDark) DarkBackground else Color.White
-    val subColor = if (isDark) DarkSubBg else LightSubBg
-    val listColor = if (isDark) DarkList else LightList
 
     Column(modifier =
         Modifier

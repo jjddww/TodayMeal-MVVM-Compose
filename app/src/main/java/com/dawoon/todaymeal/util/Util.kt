@@ -109,4 +109,20 @@ object DateCalculator {
     fun formatMonth(date: Date): String {
         return SimpleDateFormat("M월", Locale.getDefault()).format(date)
     }
+
+    fun getDayOfWeek(dateStr: String): Int {
+        val date = parseApiDate(dateStr) ?: return 0
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        // Calendar.MONDAY는 2
+        val day = calendar.get(Calendar.DAY_OF_WEEK)
+        return when(day) {
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            else -> 0
+        }
+    }
 }

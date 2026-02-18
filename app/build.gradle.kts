@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.android)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     ksp(libs.hilt.compiler)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.gson)
