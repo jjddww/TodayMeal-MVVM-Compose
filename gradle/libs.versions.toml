@@ -19,6 +19,7 @@ lifecycle-viewmodel = "2.8.7"
 hiltNavigationCompose = "1.2.0"
 ksp = "2.0.0-1.0.24"
 lifecycleViewmodelKtx = "2.10.0"
+preferenceKtx = "1.2.1"
 
 
 [libraries]
@@ -49,6 +50,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

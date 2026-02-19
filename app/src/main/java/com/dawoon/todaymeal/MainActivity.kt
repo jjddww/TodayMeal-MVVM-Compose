@@ -1,5 +1,6 @@
 package com.dawoon.todaymeal
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,91 +35,98 @@ import androidx.navigation.compose.rememberNavController
 import com.dawoon.todaymeal.ui.nav.BottomAppBar
 import com.dawoon.todaymeal.ui.nav.HOME_ROUTE
 import com.dawoon.todaymeal.ui.nav.HomeFab
+import com.dawoon.todaymeal.ui.nav.appNavGraph
 import com.dawoon.todaymeal.ui.screen.HomeScreen
 import com.dawoon.todaymeal.ui.screen.NoticeScreen
 import com.dawoon.todaymeal.ui.screen.ScheduleScreen
+import com.dawoon.todaymeal.ui.screen.SettingScreen
 import com.dawoon.todaymeal.ui.screen.TimetableScreen
 import com.dawoon.todaymeal.ui.screen.WeeklyMenuScreen
 import com.dawoon.todaymeal.ui.theme.DarkBackground
 import com.dawoon.todaymeal.ui.theme.LightBackground
 import com.dawoon.todaymeal.ui.theme.TodayMeal_MVVM_ComposeTheme
+import com.dawoon.todaymeal.util.PreferenceManager
+import com.dawoon.todaymeal.viewmodel.SettingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var prefManager: PreferenceManager
     private var isReady = false
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // 2. 스플래시 화면 유지 조건 설정
         splashScreen.setKeepOnScreenCondition {
-            // 이 값이 false인 동안은 스플래시가 사라지지 않습니다.
             !isReady
         }
 
-        // 3. 의도적으로 1~2초 정도 딜레이를 줍니다 (테스트용)
         lifecycleScope.launch {
-            delay(1200) // 1.5초 대기
-            isReady = true // 로딩 완료 선언 -> 스플래시 사라짐
+            delay(1200)
+            isReady = true
         }
 
+        val isSchoolSet = prefManager.getSchoolName().isNotEmpty()
 
         setContent {
-            TodayMeal_MVVM_ComposeTheme() {
+            TodayMeal_MVVM_ComposeTheme {
                 val navController = rememberNavController()
-
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val route = navBackStackEntry?.destination?.route
+                val currentRoute = navBackStackEntry?.destination?.route
 
                 val isDark = isSystemInDarkTheme()
                 val barBg = if (isDark) DarkBackground else LightBackground
-//                val scaffoldBg = if (route == "notice") barBg else Color.Transparent
 
                 val noRippleConfiguration = RippleConfiguration(
                     color = Color.Transparent,
                     rippleAlpha = RippleAlpha(0f, 0f, 0f, 0f)
                 )
+
                 CompositionLocalProvider(LocalRippleConfiguration provides noRippleConfiguration) {
                     Scaffold(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         containerColor = barBg,
                         bottomBar = {
-                            BottomAppBar(
-                                navController)
-                        } ,
+                            if (currentRoute != "setting") {
+                                BottomAppBar(navController)
+                            }
+                        },
                         floatingActionButton = {
-                            HomeFab(
-                                navController = navController) },
+                            if (currentRoute != "setting") {
+                                HomeFab(navController = navController)
+                            }
+                        },
                         floatingActionButtonPosition = FabPosition.Center
                     ) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = HOME_ROUTE,
+                            startDestination = if (isSchoolSet) HOME_ROUTE else "setting",
                             modifier = Modifier.padding(
                                 start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
                                 end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
-                                bottom = innerPadding.calculateBottomPadding()
+                                bottom = if (currentRoute == "setting") 0.dp else innerPadding.calculateBottomPadding()
                             )
                         ) {
-                            composable("notice") { NoticeScreen() }
-                            composable("timetable") { TimetableScreen() }
-                            composable("home") { HomeScreen() }
-                            composable("weekly") { WeeklyMenuScreen() }
-                            composable("schedule") { ScheduleScreen() }
+                            appNavGraph(
+                                onNavigateToHome = {
+                                    navController.navigate(HOME_ROUTE) {
+                                        popUpTo("setting") { inclusive = true }
+                                    }
+                                }
+                            )
                         }
                     }
                 }
-
             }
         }
     }
-}
 
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
@@ -134,10 +144,14 @@ fun AppPreview() {
                 modifier = Modifier.fillMaxSize(),
                 bottomBar = {
                     BottomAppBar(
-                        navController) },
+                        navController
+                    )
+                },
                 floatingActionButton = {
                     HomeFab(
-                        navController = navController) },
+                        navController = navController
+                    )
+                },
                 floatingActionButtonPosition = FabPosition.Center
             ) { innerPadding ->
                 NavHost(
@@ -152,7 +166,6 @@ fun AppPreview() {
                     composable("schedule") { ScheduleScreen() }
                 }
             }
-        }
+        }}
 
     }
-}
