@@ -54,7 +54,7 @@ fun TimetableScreen(
     val bgColor = if (isDark) DarkBackground else Color.White
     val timeTableTextColor = if (isDark) Color.White else Color.Black
 
-    LaunchedEffect(Unit) { viewModel.fetchTimetable("20250512", "20250516") }
+    LaunchedEffect(Unit) { viewModel.fetchTimetable("20250331", "20250404") }
 
     Column(modifier =
         Modifier

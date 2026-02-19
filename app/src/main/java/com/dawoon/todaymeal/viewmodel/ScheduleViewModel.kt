@@ -11,6 +11,7 @@ import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.repository.ScheduleRepository
 import com.dawoon.todaymeal.util.DateCalculator
+import com.dawoon.todaymeal.util.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +27,8 @@ data class ScheduleUiState(
 
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
-    private val repository: ScheduleRepository
+    private val repository: ScheduleRepository,
+    private val prefManager: PreferenceManager
 ) : ViewModel() {
 
     private var currentBaseDate by mutableStateOf(Date())
@@ -61,8 +63,8 @@ class ScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true)
             repository.getSchoolSchedule(
-                atptCode = "J10",
-                schoolCode = "7530528",
+                atptCode = prefManager.getAtptCode(),
+                schoolCode = prefManager.getSchoolCode(),
                 fromYmd = range.first,
                 toYmd = range.second
             ).onSuccess { list ->

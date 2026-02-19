@@ -54,7 +54,7 @@ class SchoolRepository @Inject constructor(
         toYmd: String?
     ): ApiResult<List<MealRowDto>> {
 
-        val cacheKey = "$mealCode-$fromYmd-$toYmd"
+        val cacheKey = "$schoolCode-$mealCode-$fromYmd-$toYmd"
 
         if (mealCache.containsKey(cacheKey)) {
             return ApiResult.Success(mealCache[cacheKey]!!)

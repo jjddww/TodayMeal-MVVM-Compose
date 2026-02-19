@@ -9,6 +9,7 @@ import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.repository.TimetableRepository
 import com.dawoon.todaymeal.repository.TimetableSubject
 import com.dawoon.todaymeal.util.DateCalculator
+import com.dawoon.todaymeal.util.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,12 +22,13 @@ import javax.inject.Inject
 data class TimetableUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val infoMessage: String? = null // "데이터가 없습니다" 등의 안내용
+    val infoMessage: String? = null
 )
 
 @HiltViewModel
 class TimetableViewModel @Inject constructor(
-    private val repository: TimetableRepository
+    private val repository: TimetableRepository,
+    private val prefManager: PreferenceManager
 ): ViewModel() {
     private val _timetableState = MutableStateFlow<List<TimetableSubject>>(emptyList())
     val timetableState = _timetableState.asStateFlow()
@@ -40,11 +42,21 @@ class TimetableViewModel @Inject constructor(
     fun fetchTimetable(from: String, to: String) {
         viewModelScope.launch {
             repository.getTimetable(
-                schoolType = SchoolType.HIGH,
-                atptCode = "J10",
-                schoolCode = "7530528",
-                grade = "1",
-                classNm = "1",
+                schoolType = when (prefManager.getSchoolType()) {
+                    "ELEMENTARY" -> {
+                        SchoolType.ELEMENTARY
+                    }
+                    "MIDDLLE" -> {
+                        SchoolType.MIDDLE
+                    }
+                    else -> {
+                        SchoolType.HIGH
+                    }
+                },
+                atptCode = prefManager.getAtptCode(),
+                schoolCode = prefManager.getSchoolCode(),
+                grade = prefManager.getGrade(),
+                classNm = prefManager.getClass(),
                 fromYmd = from,
                 toYmd = to
             ).onSuccess { list ->

@@ -21,7 +21,6 @@ class TimetableRepository @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
 ) {
-    // 공통 safeCall 로직 (기존과 동일하게 유지)
     private suspend fun <T> safeCall(
         call: suspend () -> Response<T>,
         resultExtractor: (T) -> NeisResultDto?
@@ -40,7 +39,6 @@ class TimetableRepository @Inject constructor(
         } catch (t: Throwable) { ApiResult.Failure(t) }
     }
 
-    // 고등학교 시간표 가져오기 예시 (초/중도 동일한 구조로 추가 가능)
     suspend fun getTimetable(
         schoolType: SchoolType, // "ELEMENTARY", "MIDDLE", "HIGH"
         atptCode: String,

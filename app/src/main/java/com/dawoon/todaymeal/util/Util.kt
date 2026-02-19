@@ -10,7 +10,7 @@ fun formatMealText(rawText: String): String {
         .split(Regex("<br\\s*/?>"))
         .map {
             it.trim()
-                .replace(Regex("\\s*\\([\\d.]+\\)"), "")
+                .replace(Regex("\\s*\\([^)]*\\)"), "")
                 .replace(Regex("\\.$"), "")
         }
         .filter { it.isNotEmpty() }

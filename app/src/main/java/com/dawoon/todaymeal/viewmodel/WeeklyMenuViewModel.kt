@@ -11,6 +11,7 @@ import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.repository.SchoolRepository
 import com.dawoon.todaymeal.util.DateCalculator
+import com.dawoon.todaymeal.util.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,8 @@ import java.util.Calendar
 import javax.inject.Inject
 @HiltViewModel
 class WeeklyMenuViewModel @Inject constructor(
-    private val repository: SchoolRepository
+    private val repository: SchoolRepository,
+    private val prefManager: PreferenceManager
 ): ViewModel(){
     private val _weeks = MutableStateFlow<List<WeekRange>>(emptyList())
     val weeks = _weeks.asStateFlow()
@@ -120,11 +122,11 @@ class WeeklyMenuViewModel @Inject constructor(
         val currentWeek = weeks.value.getOrNull(selectedWeekIndex.value) ?: return
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(loading = true)
+            _uiState.value = MealServiceUiState(loading = true, items = emptyList())
 
             repository.getMealServiceInfo(
-                atptCode = "J10",
-                schoolCode = "7530528",
+                atptCode = prefManager.getAtptCode() ,
+                schoolCode = prefManager.getSchoolCode(),
                 mealCode = selectedMealType,
                 fromYmd = currentWeek.startDate,
                 toYmd = currentWeek.endDate
