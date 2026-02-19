@@ -13,6 +13,7 @@ import com.dawoon.todaymeal.network.onError
 import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.util.DateCalculator
+import com.dawoon.todaymeal.util.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +29,8 @@ data class MealServiceUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SchoolRepository
+    private val repository: SchoolRepository,
+    private val prefManager: PreferenceManager
 ) : ViewModel() {
 
     val mockToday = "20250514"
@@ -41,6 +43,8 @@ class HomeViewModel @Inject constructor(
     var selectedDate by mutableStateOf(DateCalculator.parseApiDate(mockToday) ?: Date()) /** 임시 데이터!! **/
 
     private var currentRange: Pair<String, String>? = null
+
+    var schoolName by mutableStateOf(prefManager.getSchoolName())
 
     private val errorData = listOf(
         MealRowDto(MMEAL_SC_NM = "문제가 \n발생하였습니다.\n잠시 후 \n다시 시도해주세요")
@@ -76,6 +80,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun resetSetting() {
+        prefManager.clearAll()
+    }
+
     fun fetchMealData(from: String, to: String) {
         currentRange = Pair(from, to)
 
@@ -84,8 +92,8 @@ class HomeViewModel @Inject constructor(
             _state.value = _state.value.copy(loading = true, errorMessage = null)
 
             repository.getMealServiceInfo(
-                atptCode = "J10",
-                schoolCode = "7530528",
+                atptCode = prefManager.getAtptCode(),
+                schoolCode = prefManager.getSchoolCode(),
                 mealCode = selectedMealType,
                 fromYmd = from,
                 toYmd = to

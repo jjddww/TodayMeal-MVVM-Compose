@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
                             )
                         ) {
                             appNavGraph(
+                                navController = navController,
                                 onNavigateToHome = {
                                     navController.navigate(HOME_ROUTE) {
                                         popUpTo("setting") { inclusive = true }
@@ -161,7 +162,7 @@ fun AppPreview() {
                 ) {
                     composable("notice") { NoticeScreen() }
                     composable("timetable") { TimetableScreen() }
-                    composable("home") { HomeScreen() }
+                    composable("home") { HomeScreen(navController = navController) }
                     composable("weekly") { WeeklyMenuScreen() }
                     composable("schedule") { ScheduleScreen() }
                 }

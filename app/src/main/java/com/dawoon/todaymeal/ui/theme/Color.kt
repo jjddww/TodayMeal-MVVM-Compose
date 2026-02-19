@@ -42,6 +42,10 @@ val SettingLight = Color(0xFFADBB86)
 val SettingDark = Color(0xFF8BB69A)
 val SettingContainerColor = Color(0xFF1E1E1E)
 
+val EmailAreaDark = Color(0xFF333333)
+
+val EmailAreaLight = Color(0xFFF5F5F5)
+
 val TimetableColorList = listOf(
     Color(0xFFDAEEDC), Color(0xFFCEE8CE), Color(0xFFB8D9C0), Color(0xFFF1F0D9), Color(0xFFBED297), Color(0xFFEBEED5), Color(0xFF9DB589),
     Color(0xFFF5E2C2), Color(0xFFF6C6B1), Color(0xFFF9A8A0), Color(0xFFB78B90), Color(0xFF516160), Color(0xFFB0B57E), Color(0xFFF9E4DB),
