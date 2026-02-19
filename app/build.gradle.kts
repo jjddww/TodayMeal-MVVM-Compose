@@ -67,6 +67,9 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.material3)
+    implementation(libs.material)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

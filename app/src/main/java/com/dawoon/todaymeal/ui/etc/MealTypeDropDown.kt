@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -39,7 +37,6 @@ fun MealTypeDropdown(
     var expanded by remember { mutableStateOf(false) }
     val options = listOf("아침", "점심", "저녁")
 
-    // 코드를 다시 이름으로 변환 (보여주기용)
     val displayName = when(selectedType) {
         "1" -> "아침"
         "2" -> "점심"
