@@ -1,10 +1,17 @@
 package com.dawoon.todaymeal.viewmodel
 
+import android.app.Application
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dawoon.todaymeal.AppWidget
 import com.dawoon.todaymeal.network.ApiResult
 import com.dawoon.todaymeal.network.model.SchoolRowDto
 import com.dawoon.todaymeal.repository.SettingRepository
@@ -16,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingViewModel @Inject constructor(
     private val repository: SettingRepository,
-    private val prefManager: PreferenceManager
+    private val prefManager: PreferenceManager,
+    private val application: Application
 ) : ViewModel() {
 
     var searchQuery by mutableStateOf("")
@@ -53,6 +61,7 @@ class SettingViewModel @Inject constructor(
         showGradePopup = true
     }
 
+
     fun saveFinalSettings(onComplete: () -> Unit) {
         val school = tempSchool ?: return
 
@@ -65,7 +74,7 @@ class SettingViewModel @Inject constructor(
             prefManager.saveGradeAndClass(inputGrade, inputClass)
 
             showGradePopup = false
-            onComplete()
+            onComplete() // 화면 이동 콜백 실행
         }
     }
 }

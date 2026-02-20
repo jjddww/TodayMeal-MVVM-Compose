@@ -46,7 +46,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.LocalContext
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.updateAll
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dawoon.todaymeal.AppWidget
 import com.dawoon.todaymeal.R
 import com.dawoon.todaymeal.network.model.SchoolRowDto
 import com.dawoon.todaymeal.ui.theme.DarkBackground
@@ -57,6 +64,9 @@ import com.dawoon.todaymeal.ui.theme.SettingLight
 import com.dawoon.todaymeal.ui.theme.SettingTitleDark
 import com.dawoon.todaymeal.ui.theme.SettingTitleLight
 import com.dawoon.todaymeal.viewmodel.SettingViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +77,7 @@ fun SettingScreen(
     val isDark = isSystemInDarkTheme()
     val mainGreen = Color(0xFF6B8A7A)
     val backgroundColor = if (isDark) DarkBackground else Color.White
-
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Box(
         modifier = Modifier
@@ -238,7 +248,27 @@ fun SettingScreen(
                 },
                 confirmButton = {
                     Button(
-                        onClick = { viewModel.saveFinalSettings(onNavigateToNext) },
+                        onClick = {
+                            viewModel.saveFinalSettings {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    try {
+                                        kotlinx.coroutines.delay(300)
+
+                                        val manager = GlanceAppWidgetManager(context)
+                                        val glanceIds = manager.getGlanceIds(AppWidget::class.java)
+
+                                        glanceIds.forEach { glanceId ->
+                                            AppWidget().update(context, glanceId)
+                                        }
+
+                                        onNavigateToNext()
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                        onNavigateToNext()
+                                    }
+                                }
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth().height(50.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = mainGreen),
                         enabled = viewModel.inputGrade.isNotBlank() && viewModel.inputClass.isNotBlank(),
