@@ -79,9 +79,16 @@ import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dawoon.todaymeal.AppWidget
 import com.dawoon.todaymeal.ui.theme.EmailAreaDark
 import com.dawoon.todaymeal.ui.theme.EmailAreaLight
 import com.dawoon.todaymeal.ui.theme.TextDeepGreen
+import com.dawoon.todaymeal.util.WidgetUtil
 
 @Composable
 fun HomeScreen(
@@ -105,6 +112,7 @@ fun HomeScreen(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var showResetDialog by remember { mutableStateOf(false) }
+    val schoolName by viewModel.schoolName.collectAsStateWithLifecycle()
 
     var showContactDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -162,7 +170,10 @@ fun HomeScreen(
                 TextButton(
                     onClick = {
                         showResetDialog = false
-                        viewModel.resetSetting()
+                        scope.launch {
+                            viewModel.resetSetting()
+                            WidgetUtil.updateAllWidgets(context)
+                        }
                         navController.navigate("setting") {
                             popUpTo(0)
                         }
@@ -373,7 +384,7 @@ fun HomeScreen(
                 }
 
                 Text(
-                    text = viewModel.schoolName,
+                    text = schoolName,
                     modifier =
                         Modifier.align(Alignment.Center),
                     color = textColor,

@@ -8,7 +8,11 @@ import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dawoon.todaymeal.AppWidget
@@ -65,16 +69,18 @@ class SettingViewModel @Inject constructor(
     fun saveFinalSettings(onComplete: () -> Unit) {
         val school = tempSchool ?: return
 
-        if (inputGrade.isNotBlank() && inputClass.isNotBlank()) {
-            prefManager.saveSchool(
-                atpt = school.ATPT_OFCDC_SC_CODE ?: "",
-                code = school.SD_SCHUL_CODE ?: "",
-                name = school.SCHUL_NM ?: ""
-            )
-            prefManager.saveGradeAndClass(inputGrade, inputClass)
+        viewModelScope.launch {
+            if (inputGrade.isNotBlank() && inputClass.isNotBlank()) {
+                prefManager.saveSchool(
+                    atpt = school.ATPT_OFCDC_SC_CODE ?: "",
+                    code = school.SD_SCHUL_CODE ?: "",
+                    name = school.SCHUL_NM ?: ""
+                )
+                prefManager.saveGradeAndClass(inputGrade, inputClass)
 
-            showGradePopup = false
-            onComplete() // 화면 이동 콜백 실행
+                showGradePopup = false
+                onComplete() // 저장이 끝났으니 UI에 알려줌
+            }
         }
     }
 }

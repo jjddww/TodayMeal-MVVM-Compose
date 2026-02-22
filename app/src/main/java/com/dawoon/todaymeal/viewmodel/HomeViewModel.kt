@@ -4,6 +4,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.dataStore
 import com.dawoon.todaymeal.network.model.SchoolRowDto
 import com.dawoon.todaymeal.repository.SchoolRepository
 import androidx.lifecycle.ViewModel
@@ -14,9 +15,13 @@ import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.util.PreferenceManager
+import com.dawoon.todaymeal.util.PreferenceManager.Companion.SCHOOL_NAME
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -44,7 +49,12 @@ class HomeViewModel @Inject constructor(
 
     private var currentRange: Pair<String, String>? = null
 
-    var schoolName by mutableStateOf(prefManager.getSchoolName())
+    val schoolName = prefManager.schoolNameFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ""
+        )
 
     private val errorData = listOf(
         MealRowDto(MMEAL_SC_NM = "문제가 \n발생하였습니다.\n잠시 후 \n다시 시도해주세요")
@@ -80,7 +90,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun resetSetting() {
+    suspend fun resetSetting() {
         prefManager.clearAll()
     }
 
@@ -88,7 +98,6 @@ class HomeViewModel @Inject constructor(
         currentRange = Pair(from, to)
 
         viewModelScope.launch {
-            // 로딩 시작 시 기존 데이터를 유지하면서 상태만 변경 (화면 깜빡임 방지)
             _state.value = _state.value.copy(loading = true, errorMessage = null)
 
             repository.getMealServiceInfo(

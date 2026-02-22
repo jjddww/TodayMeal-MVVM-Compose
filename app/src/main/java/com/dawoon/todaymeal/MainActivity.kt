@@ -57,6 +57,8 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var prefManager: PreferenceManager
     private var isReady = false
+    private var isSchoolSet = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -71,8 +73,9 @@ class MainActivity : ComponentActivity() {
             isReady = true
         }
 
-        val isSchoolSet = prefManager.getSchoolName().isNotEmpty()
-
+        lifecycleScope.launch {
+            isSchoolSet = prefManager.getSchoolName().isNotEmpty()
+        }
         setContent {
             TodayMeal_MVVM_ComposeTheme {
                 val navController = rememberNavController()

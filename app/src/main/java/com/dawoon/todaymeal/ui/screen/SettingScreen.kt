@@ -63,6 +63,7 @@ import com.dawoon.todaymeal.ui.theme.SettingDark
 import com.dawoon.todaymeal.ui.theme.SettingLight
 import com.dawoon.todaymeal.ui.theme.SettingTitleDark
 import com.dawoon.todaymeal.ui.theme.SettingTitleLight
+import com.dawoon.todaymeal.util.WidgetUtil
 import com.dawoon.todaymeal.viewmodel.SettingViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -250,22 +251,10 @@ fun SettingScreen(
                     Button(
                         onClick = {
                             viewModel.saveFinalSettings {
+                                // saveFinalSettings가 완료된 후 실행되는 콜백 (onComplete)
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    try {
-                                        kotlinx.coroutines.delay(300)
-
-                                        val manager = GlanceAppWidgetManager(context)
-                                        val glanceIds = manager.getGlanceIds(AppWidget::class.java)
-
-                                        glanceIds.forEach { glanceId ->
-                                            AppWidget().update(context, glanceId)
-                                        }
-
-                                        onNavigateToNext()
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                        onNavigateToNext()
-                                    }
+                                    WidgetUtil.updateAllWidgets(context)
+                                    onNavigateToNext()
                                 }
                             }
                         },
