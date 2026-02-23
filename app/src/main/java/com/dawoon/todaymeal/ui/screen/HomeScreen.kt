@@ -59,6 +59,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -366,7 +367,8 @@ fun HomeScreen(
                     Modifier
                         .fillMaxWidth()
                         .height(110.dp)
-                        .background(if (isDark) DarkBackground else Color.White)
+                        .background(if (isDark) DarkBackground else Color.White),
+                contentAlignment = Alignment.Center
             ) {
 
                 IconButton(
@@ -385,13 +387,12 @@ fun HomeScreen(
 
                 Text(
                     text = schoolName,
-                    modifier =
-                        Modifier.align(Alignment.Center),
+                    modifier = Modifier.padding(horizontal = 64.dp),
                     color = textColor,
-                    fontSize = 24.sp,
-                    fontFamily = FontFamily(
-                        Font(resId = R.font.suite_extrabold)
-                    )
+                    fontSize = if (schoolName.length > 10) 18.sp else 24.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = FontFamily(Font(resId = R.font.suite_extrabold))
                 )
 
             }
