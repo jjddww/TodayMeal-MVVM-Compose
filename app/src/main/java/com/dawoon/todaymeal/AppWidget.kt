@@ -93,7 +93,6 @@ class AppWidget : GlanceAppWidget() {
                 lunchText = "학교를 설정해주세요."
                 dinnerText = "학교를 설정해주세요."
             } else {
-                // 버튼 클릭 시마다 이 로직이 다시 돌아 최신 상태를 반영합니다.
                 val bRes = runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "1", mockToday, mockToday) }
                 val lRes = runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "2", mockToday, mockToday) }
                 val dRes = runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "3", mockToday, mockToday) }
@@ -164,7 +163,7 @@ class AppWidget : GlanceAppWidget() {
     }
 }
 
-// 액션 콜백들 (기존과 동일하지만, update 호출을 확실히 함)
+
 class NextMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
