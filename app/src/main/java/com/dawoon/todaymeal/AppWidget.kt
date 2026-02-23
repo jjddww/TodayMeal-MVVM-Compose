@@ -4,8 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.fonts.Font
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -18,6 +23,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.ActionCallback
@@ -124,27 +130,72 @@ class AppWidget : GlanceAppWidget() {
             modifier = GlanceModifier.fillMaxSize().padding(12.dp)
                 .background(GlanceTheme.colors.background).cornerRadius(16.dp)
         ) {
-            Spacer(modifier = GlanceModifier.height(30.dp))
-            Row(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalAlignment = Alignment.CenterVertically) {
-                Text(text = " < ", style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 30.sp, fontWeight = FontWeight.Medium),
-                    modifier = GlanceModifier.clickable(actionRunCallback<PrevMealAction>()))
+            Spacer(modifier = GlanceModifier.height(20.dp))
 
-                Spacer(modifier = GlanceModifier.width(20.dp))
-                Image(ImageProvider(R.drawable.icn_home), contentDescription = null, modifier = GlanceModifier.size(30.dp))
+
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Image(
+                    provider = ImageProvider(R.drawable.ic_widget_left_arrow),
+                    contentDescription = "left arrow",
+                    modifier = GlanceModifier
+                        .size(30.dp)
+                        .clickable(actionRunCallback<PrevMealAction>()),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface)
+                )
+
+
+                Spacer(modifier = GlanceModifier.width(10.dp))
+
+
+                Image(
+                    provider = ImageProvider(R.drawable.icn_home),
+                    contentDescription = null,
+                    modifier = GlanceModifier.size(25.dp)
+                )
+
+                Spacer(modifier = GlanceModifier.width(8.dp))
 
                 val title = when (currentType) {
                     "MORNING" -> "아침 메뉴"
                     "LUNCH" -> "점심 메뉴"
                     else -> "저녁 메뉴"
                 }
-                Text(text = title, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 20.sp, fontWeight = FontWeight.Bold))
+                Text(
+                    text = title,
+                    style = TextStyle(color = GlanceTheme.colors.onSurface,
+                        fontSize = 18.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Bold)
+                )
 
-                Image(ImageProvider(R.drawable.icn_home), contentDescription = null, modifier = GlanceModifier.size(30.dp))
-                Spacer(modifier = GlanceModifier.width(20.dp))
+                Spacer(modifier = GlanceModifier.width(8.dp))
 
-                Text(text = " > ", style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 30.sp, fontWeight = FontWeight.Medium),
-                    modifier = GlanceModifier.clickable(actionRunCallback<NextMealAction>()))
+
+                Image(
+                    provider = ImageProvider(R.drawable.icn_home),
+                    contentDescription = null,
+                    modifier = GlanceModifier.size(25.dp)
+                )
+
+                Spacer(modifier = GlanceModifier.width(10.dp))
+
+
+                Image(
+                    provider = ImageProvider(R.drawable.ic_widget_right_arrow),
+                    contentDescription = "left arrow",
+                    modifier = GlanceModifier
+                        .size(30.dp)
+                        .clickable(actionRunCallback<NextMealAction>()),
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface)
+                )
             }
+
+            Spacer(modifier = GlanceModifier.height(16.dp))
 
             val displayData = when (currentType) {
                 "MORNING" -> breakfastData
@@ -152,11 +203,21 @@ class AppWidget : GlanceAppWidget() {
                 else -> dinnerData
             }
 
-            Spacer(modifier = GlanceModifier.height(30.dp))
-            LazyColumn(modifier = GlanceModifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                item {
-                    Text(text = displayData, style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 18.sp, textAlign = TextAlign.Center),
-                        modifier = GlanceModifier.fillMaxWidth())
+
+            Box(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
+                LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
+                    item {
+                        Text(
+                            text = displayData,
+                            style = TextStyle(
+                                fontFamily = FontFamily.SansSerif,
+                                color = GlanceTheme.colors.onSurface,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            ),
+                            modifier = GlanceModifier.fillMaxWidth().padding(bottom = 30.dp)
+                        )
+                    }
                 }
             }
         }
@@ -168,7 +229,12 @@ class NextMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
-            val next = when (current) { "MORNING" -> "LUNCH"; "LUNCH" -> "DINNER"; "DINNER" -> "MORNING"; else -> "LUNCH" }
+            val next = when (current) {
+                "MORNING" -> "LUNCH"
+                "LUNCH" -> "DINNER"
+                "DINNER" -> "MORNING"
+                else -> "LUNCH"
+            }
             prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = next }
         }
         AppWidget().update(context, glanceId)
@@ -176,10 +242,19 @@ class NextMealAction : ActionCallback {
 }
 
 class PrevMealAction : ActionCallback {
-    override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
             val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
-            val prev = when (current) { "MORNING" -> "DINNER"; "LUNCH" -> "MORNING"; "DINNER" -> "LUNCH"; else -> "LUNCH" }
+            val prev = when (current) {
+                "MORNING" -> "DINNER"
+                "LUNCH" -> "MORNING"
+                "DINNER" -> "LUNCH"
+                else -> "LUNCH"
+            }
             prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = prev }
         }
         AppWidget().update(context, glanceId)

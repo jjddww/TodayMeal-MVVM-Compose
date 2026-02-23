@@ -118,8 +118,11 @@ class MainActivity : ComponentActivity() {
                             appNavGraph(
                                 navController = navController,
                                 onNavigateToHome = {
+                                    navController.popBackStack(navController.graph.startDestinationId, true)
+
                                     navController.navigate(HOME_ROUTE) {
-                                        popUpTo("setting") { inclusive = true }
+                                        popUpTo(0) { inclusive = true }
+                                        launchSingleTop = true
                                     }
                                 }
                             )

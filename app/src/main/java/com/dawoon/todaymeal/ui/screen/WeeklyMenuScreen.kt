@@ -51,6 +51,10 @@ fun WeeklyMenuScreen(viewModel: WeeklyMenuViewModel = hiltViewModel()) {
         listState.animateScrollToItem(selectedIndex)
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.loadWeeklyData()
+    }
+
 
     Column(
         modifier = Modifier
