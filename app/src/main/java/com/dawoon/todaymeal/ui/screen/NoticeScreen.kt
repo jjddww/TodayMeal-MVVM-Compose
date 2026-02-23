@@ -16,10 +16,16 @@ import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +50,7 @@ fun NoticeScreen() {
     val bgColor = if (isDark) DarkSubBg else LightBackground
     val textColor = if (isDark) DarkText else LightText
     val headerBg = if (isDark) DarkBackground else Color.White // 상태바/헤더 배경 (흰/검)
+    var selectedNotice by remember { mutableStateOf<Notice?>(null) }
 
     Column(modifier =
         Modifier
@@ -77,7 +84,36 @@ fun NoticeScreen() {
 
             }
 
-            NoticeList(dummyNotices, {}, isDark)
+            NoticeList(dummyNotices, { notice -> selectedNotice = notice }, isDark)
+    }
+
+    selectedNotice?.let { notice ->
+        AlertDialog(
+            onDismissRequest = { selectedNotice = null }, // 팝업 밖을 누르면 닫기
+            confirmButton = {
+                TextButton(onClick = { selectedNotice = null }) {
+                    Text("확인", color = textColor, fontFamily = FontFamily(Font(R.font.suite_bold)))
+                }
+            },
+            title = {
+                Text(
+                    text = notice.title,
+                    fontFamily = FontFamily(Font(R.font.suite_extrabold)),
+                    fontSize = 20.sp
+                )
+            },
+            text = {
+                Text(
+                    text = notice.contents,
+                    fontFamily = FontFamily(Font(R.font.suite_medium)),
+                    fontSize = 16.sp
+                )
+            },
+            containerColor = if (isDark) DarkBackground else Color.White,
+            titleContentColor = textColor,
+            textContentColor = textColor,
+            shape = RoundedCornerShape(24.dp)
+        )
     }
 }
 
