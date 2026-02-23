@@ -43,6 +43,7 @@ import com.dawoon.todaymeal.ui.screen.SettingScreen
 import com.dawoon.todaymeal.ui.screen.TimetableScreen
 import com.dawoon.todaymeal.ui.screen.WeeklyMenuScreen
 import com.dawoon.todaymeal.ui.theme.DarkBackground
+import com.dawoon.todaymeal.ui.theme.DarkSubBg
 import com.dawoon.todaymeal.ui.theme.LightBackground
 import com.dawoon.todaymeal.ui.theme.TodayMeal_MVVM_ComposeTheme
 import com.dawoon.todaymeal.util.PreferenceManager
@@ -83,7 +84,15 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val isDark = isSystemInDarkTheme()
-                val barBg = if (isDark) DarkBackground else LightBackground
+                val containerColor =
+                    if (isDark){
+                        if (currentRoute == "notice") DarkSubBg
+                        else DarkBackground
+                    }
+                    else {
+                        if (currentRoute == "notice") LightBackground
+                        else Color.White
+                    }
 
                 val noRippleConfiguration = RippleConfiguration(
                     color = Color.Transparent,
@@ -93,7 +102,7 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalRippleConfiguration provides noRippleConfiguration) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
-                        containerColor = barBg,
+                        containerColor = containerColor,
                         bottomBar = {
                             if (currentRoute != "setting") {
                                 BottomAppBar(navController)

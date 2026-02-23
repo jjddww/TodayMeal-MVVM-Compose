@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -140,14 +141,20 @@ fun TimetableScreen(
                             fontWeight = FontWeight.Bold)
 
                         (1..5).forEach { dayOfWeek ->
-                            val subject = timetableData.find {
+                            val foundSubject = timetableData.find {
                                 it.dayOfWeek == dayOfWeek && it.period == period
-                            }?.subject ?: ""
+                            }?.subject
+
+                            val subject = if (foundSubject.isNullOrEmpty()) "정보\n없음" else foundSubject
+
+                            val isDataEmpty = foundSubject.isNullOrEmpty()
+
                             val colorIdx = ((dayOfWeek - 1) * 7) + ((period - 1) % 7)
 
                             TimetableCell(
                                 subject = subject,
                                 colorIndex = colorIdx,
+                                isDataEmpty = isDataEmpty, // 새로 추가할 파라미터
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -159,24 +166,45 @@ fun TimetableScreen(
 }
 
 @Composable
-fun TimetableCell(subject: String, colorIndex: Int, modifier: Modifier = Modifier) {
+fun TimetableCell(
+    subject: String,
+    colorIndex: Int,
+    isDataEmpty: Boolean,
+    modifier: Modifier = Modifier
+) {
     val baseColor = TimetableColorList[colorIndex % TimetableColorList.size]
+    val isDark = isSystemInDarkTheme()
+
+    val emptyColor = if (isDark) Color(0xFF3E3E3E) else Color(0xFFF2F2F2)
+    val emptyTextColor = if (isDark) Color.Gray else Color.LightGray
+
+    val dynamicFontSize = when {
+        isDataEmpty -> 12.sp
+        subject.length >= 6 -> 10.sp
+        subject.length >= 4 -> 12.sp
+        else -> 14.sp
+    }
+
     Box(
         modifier = modifier
-            .width(55.dp)
             .height(87.dp)
             .background(
-                color = if (subject.isNotEmpty()) baseColor else Color.Transparent,
+                color = if (!isDataEmpty) baseColor else emptyColor,
                 shape = RoundedCornerShape(14.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = subject,
-            modifier = Modifier.padding(horizontal = 10.dp),
-            fontSize = 16.sp,
-            color = Color.Black,
-            fontWeight = FontWeight.Medium,
+        Text(
+            text = subject,
+            modifier = Modifier.padding(horizontal = 4.dp),
+            fontSize = dynamicFontSize,
+            color = if (isDataEmpty) emptyTextColor else Color.Black,
+            fontWeight = if (isDataEmpty) FontWeight.Normal else FontWeight.Medium,
             fontFamily = FontFamily(Font(R.font.suite_semibold)),
-            textAlign = TextAlign.Center)
+            textAlign = TextAlign.Center,
+            lineHeight = if (subject.length >= 4) 14.sp else 18.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
