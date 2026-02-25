@@ -41,6 +41,7 @@ class TimetableViewModel @Inject constructor(
 
     fun fetchTimetable(from: String, to: String) {
         viewModelScope.launch {
+            _uiState.value = TimetableUiState(isLoading = true)
             repository.getTimetable(
                 schoolType = when (prefManager.getSchoolType()) {
                     "ELEMENTARY" -> {
