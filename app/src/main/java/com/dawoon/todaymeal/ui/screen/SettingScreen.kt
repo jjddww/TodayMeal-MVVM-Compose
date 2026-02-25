@@ -63,6 +63,7 @@ import com.dawoon.todaymeal.ui.theme.SettingDark
 import com.dawoon.todaymeal.ui.theme.SettingLight
 import com.dawoon.todaymeal.ui.theme.SettingTitleDark
 import com.dawoon.todaymeal.ui.theme.SettingTitleLight
+import com.dawoon.todaymeal.ui.theme.errorRed
 import com.dawoon.todaymeal.util.WidgetUtil
 import com.dawoon.todaymeal.viewmodel.SettingViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -128,7 +129,17 @@ fun SettingScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            if (viewModel.errorMessage != "") {
+                Text(
+                    text = viewModel.errorMessage,
+                    color = errorRed,
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily(Font(R.font.suite_semibold)),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(if (viewModel.errorMessage != "") 16.dp else 32.dp))
 
             Button(
                 onClick = { viewModel.searchSchool() },

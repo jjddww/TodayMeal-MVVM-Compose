@@ -1,7 +1,5 @@
 package com.dawoon.todaymeal.viewmodel
 
-import android.app.Application
-import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -28,7 +26,6 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val repository: SettingRepository,
     private val prefManager: PreferenceManager,
-    private val application: Application
 ) : ViewModel() {
 
     var searchQuery by mutableStateOf("")
@@ -38,6 +35,8 @@ class SettingViewModel @Inject constructor(
     var showGradePopup by mutableStateOf(false)
     var inputGrade by mutableStateOf("")
     var inputClass by mutableStateOf("")
+
+    var errorMessage by mutableStateOf("")
 
     private var tempSchool: SchoolRowDto? = null
 
@@ -52,8 +51,12 @@ class SettingViewModel @Inject constructor(
                     schoolList.value = result.data
                     showPopup = true
                 }
-                is ApiResult.Error -> { /* 에러 처리 */ }
-                is ApiResult.Failure -> { /* 실패 처리 */ }
+                is ApiResult.Error -> {
+                    errorMessage = "서버 오류가 발생했습니다. (코드: ${result.code})"
+                }
+                is ApiResult.Failure -> {
+                    errorMessage = "네트워크 연결을 확인해주세요."
+                }
             }
             isLoading = false
         }
