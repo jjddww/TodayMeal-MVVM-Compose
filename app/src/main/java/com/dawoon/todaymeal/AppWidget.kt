@@ -78,34 +78,32 @@ class AppWidget : GlanceAppWidget() {
         val repository = entryPoint.schoolRepository()
         val pref = entryPoint.prefManager()
 
+        val schoolCode = pref.getSchoolCode()
+        val atptCode = pref.getAtptCode()
+        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+
+        val mockToday = "20250514" /**임시 데이터!!!!!**/
+
+
+        var breakfastText = "학교를 설정해주세요."
+        var lunchText = "학교를 설정해주세요."
+        var dinnerText = "학교를 설정해주세요."
+
+        if (schoolCode.isNotEmpty()) {
+            breakfastText = WidgetMealMapper.getMealDisplayText(
+                repository.getMealServiceInfo(atptCode, schoolCode, "1", mockToday, mockToday), "아침"
+            )
+            lunchText = WidgetMealMapper.getMealDisplayText(
+                repository.getMealServiceInfo(atptCode, schoolCode, "2", mockToday, mockToday), "점심"
+            )
+            dinnerText = WidgetMealMapper.getMealDisplayText(
+                repository.getMealServiceInfo(atptCode, schoolCode, "3", mockToday, mockToday), "저녁"
+            )
+        }
+
         provideContent {
             val prefs = currentState<Preferences>()
             val currentType = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
-
-            // runBlocking 사용은 위젯 데이터 로딩 시 불가피하지만, 로직은 위임합니다.
-            val schoolCode = runBlocking { pref.getSchoolCode() }
-            val atptCode = runBlocking { pref.getAtptCode() }
-            val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
-
-            val breakfastText: String
-            val lunchText: String
-            val dinnerText: String
-
-            if (schoolCode.isEmpty()) {
-                val msg = "학교를 설정해주세요."
-                breakfastText = msg; lunchText = msg; dinnerText = msg
-            } else {
-                // WidgetMealMapper를 사용하여 텍스트 가공
-                breakfastText = WidgetMealMapper.getMealDisplayText(
-                    runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "1", today, today) }, "아침"
-                )
-                lunchText = WidgetMealMapper.getMealDisplayText(
-                    runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "2", today, today) }, "점심"
-                )
-                dinnerText = WidgetMealMapper.getMealDisplayText(
-                    runBlocking { repository.getMealServiceInfo(atptCode, schoolCode, "3", today, today) }, "저녁"
-                )
-            }
 
             GlanceTheme {
                 WidgetContent(currentType, breakfastText, lunchText, dinnerText)
