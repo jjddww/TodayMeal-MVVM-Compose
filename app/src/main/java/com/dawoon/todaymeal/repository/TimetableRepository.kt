@@ -11,16 +11,32 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 
+
 data class TimetableSubject(
     val subject: String,
     val period: Int,
     val dayOfWeek: Int
 )
 
-class TimetableRepository @Inject constructor(
+
+interface TimetableRepository {
+    suspend fun getTimetable(
+        schoolType: SchoolType,
+        atptCode: String,
+        schoolCode: String,
+        grade: String,
+        classNm: String,
+        fromYmd: String,
+        toYmd: String
+    ): ApiResult<List<TimetableSubject>>
+}
+
+
+class TimetableRepositoryImpl @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
-) {
+) : TimetableRepository {
+
     private suspend fun <T> safeCall(
         call: suspend () -> Response<T>,
         resultExtractor: (T) -> NeisResultDto?
@@ -39,8 +55,8 @@ class TimetableRepository @Inject constructor(
         } catch (t: Throwable) { ApiResult.Failure(t) }
     }
 
-    suspend fun getTimetable(
-        schoolType: SchoolType, // "ELEMENTARY", "MIDDLE", "HIGH"
+    override suspend fun getTimetable(
+        schoolType: SchoolType,
         atptCode: String,
         schoolCode: String,
         grade: String,

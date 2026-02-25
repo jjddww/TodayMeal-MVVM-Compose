@@ -19,7 +19,9 @@ fun formatMealText(rawText: String): String {
 
 
 object DateCalculator {
-    private val apiFormatter = SimpleDateFormat("yyyyMMdd", Locale.KOREAN)
+    private val apiFormatter = SimpleDateFormat("yyyyMMdd", Locale.KOREAN).apply {
+        isLenient = false
+    }
     fun parseApiDate(dateStr: String): Date? {
         return try {
             apiFormatter.parse(dateStr)

@@ -121,7 +121,7 @@ fun ScheduleScreen(
 
             Icon(
                 painter = painterResource(id = R.drawable.icn_right_arrow),
-                contentDescription = "left arrow",
+                contentDescription = "right arrow",
                 tint = textColor,
                 modifier = Modifier
                     .size(25.dp)

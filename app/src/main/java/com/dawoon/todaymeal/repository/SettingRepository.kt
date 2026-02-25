@@ -10,10 +10,16 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 
-class SettingRepository @Inject constructor(
+
+interface SettingRepository {
+    suspend fun searchSchool(schoolName: String): ApiResult<List<SchoolRowDto>>
+}
+
+class SettingRepositoryImpl @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
-) {
+) : SettingRepository {
+
     private suspend fun <T> safeCall(
         call: suspend () -> Response<T>,
         resultExtractor: (T) -> NeisResultDto?
@@ -40,7 +46,7 @@ class SettingRepository @Inject constructor(
         }
     }
 
-    suspend fun searchSchool(schoolName: String): ApiResult<List<SchoolRowDto>> {
+    override suspend fun searchSchool(schoolName: String): ApiResult<List<SchoolRowDto>> {
         return safeCall(
             call = { api.getSchoolInfo(key = apiKey, schoolName = schoolName) },
             resultExtractor = { body: SchoolInfoResponseDto ->
@@ -51,7 +57,6 @@ class SettingRepository @Inject constructor(
                     ?.RESULT
             }
         ).mapSuccess { dto: SchoolInfoResponseDto ->
-            // schoolInfo의 index 1에 row 데이터가 들어있음
             dto.schoolInfo?.getOrNull(1)?.row.orEmpty()
         }
     }

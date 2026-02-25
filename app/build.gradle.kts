@@ -20,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.dawoon.todaymeal.CustomTestRunner"
     }
 
     buildTypes {
@@ -32,13 +32,22 @@ android {
             )
         }
     }
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     buildFeatures {
         compose = true
     }
+
+    sourceSets {
+        getByName("debug") {
+            java.srcDirs("src/debug/java")
+        }
+    }
+
     kotlinOptions {
         freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
     }
@@ -62,6 +71,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.core.ktx)
+    implementation(libs.androidx.runtime)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity)
     ksp(libs.hilt.compiler)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.gson)
@@ -80,12 +93,18 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test) // Coroutine Test
     testImplementation(libs.turbine) // Flow 검증
     testImplementation(libs.androidx.core.testing)
+    testImplementation(libs.robolectric)
     testRuntimeOnly(libs.junit.vintage.engine)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.mockk.agent)
+
+    kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

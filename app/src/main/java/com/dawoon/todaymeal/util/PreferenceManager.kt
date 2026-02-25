@@ -1,6 +1,5 @@
 package com.dawoon.todaymeal.util
 
-import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -10,21 +9,34 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class PreferenceManager @Inject constructor(
+interface PreferenceManager {
+    suspend fun saveSchool(atpt: String, code: String, name: String)
+    suspend fun saveGradeAndClass(grade: String, classNum: String)
+    suspend fun clearAll()
+    suspend fun getAtptCode(): String
+    suspend fun getSchoolCode(): String
+    suspend fun getSchoolName(): String
+    suspend fun getSchoolType(): String
+    suspend fun getGrade(): String
+    suspend fun getClass(): String
+    val schoolNameFlow: Flow<String>
+}
+
+
+class PreferenceManagerImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
-) {
-    // 위젯(AppWidget.kt)에서 사용하는 키와 반드시 동일하게 맞춤
+) : PreferenceManager {
+
     companion object {
-        val ATPT_CODE = stringPreferencesKey("WIDGET_ATPT_CODE")
-        val SCHOOL_CODE = stringPreferencesKey("WIDGET_SCHOOL_CODE")
-        val SCHOOL_NAME = stringPreferencesKey("SCHOOL_NAME")
-        val SCHOOL_TYPE = stringPreferencesKey("SCHOOL_TYPE")
-        val USER_GRADE = stringPreferencesKey("USER_GRADE")
-        val USER_CLASS = stringPreferencesKey("USER_CLASS")
+        private val ATPT_CODE = stringPreferencesKey("WIDGET_ATPT_CODE")
+        private val SCHOOL_CODE = stringPreferencesKey("WIDGET_SCHOOL_CODE")
+        private val SCHOOL_NAME = stringPreferencesKey("SCHOOL_NAME")
+        private val SCHOOL_TYPE = stringPreferencesKey("SCHOOL_TYPE")
+        private val USER_GRADE = stringPreferencesKey("USER_GRADE")
+        private val USER_CLASS = stringPreferencesKey("USER_CLASS")
     }
 
-    // 저장 로직 (suspend 함수로 변경)
-    suspend fun saveSchool(atpt: String, code: String, name: String) {
+    override suspend fun saveSchool(atpt: String, code: String, name: String) {
         dataStore.edit { prefs ->
             prefs[ATPT_CODE] = atpt
             prefs[SCHOOL_CODE] = code
@@ -38,25 +50,23 @@ class PreferenceManager @Inject constructor(
         }
     }
 
-    suspend fun saveGradeAndClass(grade: String, classNum: String) {
+    override suspend fun saveGradeAndClass(grade: String, classNum: String) {
         dataStore.edit { prefs ->
             prefs[USER_GRADE] = grade
             prefs[USER_CLASS] = classNum
         }
     }
 
-    suspend fun clearAll() {
+    override suspend fun clearAll() {
         dataStore.edit { it.clear() }
     }
 
-    // 질문하신 Getter 함수들 (suspend 버전)
-    suspend fun getAtptCode(): String = dataStore.data.map { it[ATPT_CODE] ?: "" }.first()
-    suspend fun getSchoolCode(): String = dataStore.data.map { it[SCHOOL_CODE] ?: "" }.first()
-    suspend fun getSchoolName(): String = dataStore.data.map { it[SCHOOL_NAME] ?: "" }.first()
-    suspend fun getSchoolType(): String = dataStore.data.map { it[SCHOOL_TYPE] ?: "" }.first()
-    suspend fun getGrade(): String = dataStore.data.map { it[USER_GRADE] ?: "1" }.first()
-    suspend fun getClass(): String = dataStore.data.map { it[USER_CLASS] ?: "1" }.first()
+    override suspend fun getAtptCode(): String = dataStore.data.map { it[ATPT_CODE] ?: "" }.first()
+    override suspend fun getSchoolCode(): String = dataStore.data.map { it[SCHOOL_CODE] ?: "" }.first()
+    override suspend fun getSchoolName(): String = dataStore.data.map { it[SCHOOL_NAME] ?: "" }.first()
+    override suspend fun getSchoolType(): String = dataStore.data.map { it[SCHOOL_TYPE] ?: "" }.first()
+    override suspend fun getGrade(): String = dataStore.data.map { it[USER_GRADE] ?: "1" }.first()
+    override suspend fun getClass(): String = dataStore.data.map { it[USER_CLASS] ?: "1" }.first()
 
-    val schoolNameFlow: Flow<String> = dataStore.data
-        .map { it[SCHOOL_NAME] ?: "" }
+    override val schoolNameFlow: Flow<String> = dataStore.data.map { it[SCHOOL_NAME] ?: "" }
 }

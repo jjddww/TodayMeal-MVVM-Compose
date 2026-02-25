@@ -9,14 +9,28 @@ import com.dawoon.todaymeal.network.model.NeisResultDto
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.collections.containsKey
+import kotlin.text.get
 
+interface MealRepository {
+    suspend fun getMealServiceInfo(
+        atptCode: String,
+        schoolCode: String,
+        mealCode: String,
+        fromYmd: String?,
+        toYmd: String?
+    ): ApiResult<List<MealRowDto>>
 
-class MealRepository @Inject constructor(
+    fun clearCache()
+}
+
+class MealRepositoryImpl @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
-) {
+) : MealRepository {
 
     private val mealCache = mutableMapOf<String, List<MealRowDto>>()
+
     private suspend fun <T> safeCall(
         call: suspend () -> Response<T>,
         resultExtractor: (T) -> NeisResultDto?
@@ -43,8 +57,7 @@ class MealRepository @Inject constructor(
         }
     }
 
-
-    suspend fun getMealServiceInfo(
+    override suspend fun getMealServiceInfo(
         atptCode: String,
         schoolCode: String,
         mealCode: String,
@@ -84,7 +97,7 @@ class MealRepository @Inject constructor(
         }
     }
 
-    fun clearCache() {
+    override fun clearCache() {
         mealCache.clear()
     }
 }

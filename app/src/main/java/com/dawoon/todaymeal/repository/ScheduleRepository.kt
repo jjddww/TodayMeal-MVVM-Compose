@@ -10,10 +10,22 @@ import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 
-class ScheduleRepository @Inject constructor(
+
+interface ScheduleRepository {
+    suspend fun getSchoolSchedule(
+        atptCode: String,
+        schoolCode: String,
+        fromYmd: String? = null,
+        toYmd: String? = null,
+        ay: String? = null
+    ): ApiResult<List<SchoolScheduleRowDto>>
+}
+
+class ScheduleRepositoryImpl @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
-)  {
+) : ScheduleRepository {
+
     private suspend fun <T> safeCall(
         call: suspend () -> Response<T>,
         resultExtractor: (T) -> NeisResultDto?
@@ -40,13 +52,12 @@ class ScheduleRepository @Inject constructor(
         }
     }
 
-
-    suspend fun getSchoolSchedule(
+    override suspend fun getSchoolSchedule(
         atptCode: String,
         schoolCode: String,
-        fromYmd: String? = null,
-        toYmd: String? = null,
-        ay: String? = null
+        fromYmd: String?,
+        toYmd: String?,
+        ay: String?
     ): ApiResult<List<SchoolScheduleRowDto>> {
 
         return safeCall(
@@ -66,8 +77,7 @@ class ScheduleRepository @Inject constructor(
                     ?.RESULT
             }
         ).mapSuccess { dto: SchoolScheduleResponseDto ->
-            val rows = dto.SchoolSchedule?.getOrNull(1)?.row.orEmpty()
-            rows
+            dto.SchoolSchedule?.getOrNull(1)?.row.orEmpty()
         }
     }
 }
