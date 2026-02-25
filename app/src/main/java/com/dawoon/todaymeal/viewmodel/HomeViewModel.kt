@@ -4,9 +4,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.dataStore
-import com.dawoon.todaymeal.network.model.SchoolRowDto
-import com.dawoon.todaymeal.repository.SchoolRepository
+import com.dawoon.todaymeal.repository.MealRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dawoon.todaymeal.network.model.MealRowDto
@@ -15,9 +13,7 @@ import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
 import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.util.PreferenceManager
-import com.dawoon.todaymeal.util.PreferenceManager.Companion.SCHOOL_NAME
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,7 +30,7 @@ data class MealServiceUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SchoolRepository,
+    private val repository: MealRepository,
     private val prefManager: PreferenceManager
 ) : ViewModel() {
 
@@ -83,8 +79,6 @@ class HomeViewModel @Inject constructor(
     fun updateMealType(newType: String) {
         if (selectedMealType == newType) return
         selectedMealType = newType
-
-        // currentRange가 null일 가능성을 대비해 안전하게 호출
         currentRange?.let {
             fetchMealData(it.first, it.second)
         }

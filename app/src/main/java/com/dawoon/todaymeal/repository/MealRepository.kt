@@ -6,14 +6,12 @@ import com.dawoon.todaymeal.network.mapSuccess
 import com.dawoon.todaymeal.network.model.MealRowDto
 import com.dawoon.todaymeal.network.model.MealServiceDietInfoResponseDto
 import com.dawoon.todaymeal.network.model.NeisResultDto
-import com.dawoon.todaymeal.network.model.SchoolInfoResponseDto
-import com.dawoon.todaymeal.network.model.SchoolRowDto
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Named
 
 
-class SchoolRepository @Inject constructor(
+class MealRepository @Inject constructor(
     private val api: Apis,
     @Named("NEIS_API_KEY") private val apiKey: String
 ) {

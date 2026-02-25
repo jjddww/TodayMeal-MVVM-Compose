@@ -76,6 +76,12 @@ dependencies {
     implementation(libs.androidx.glance.material3)
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockk) // Mocking
+    testImplementation(libs.kotlinx.coroutines.test) // Coroutine Test
+    testImplementation(libs.turbine) // Flow 검증
+    testImplementation(libs.androidx.core.testing)
+    testRuntimeOnly(libs.junit.vintage.engine)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

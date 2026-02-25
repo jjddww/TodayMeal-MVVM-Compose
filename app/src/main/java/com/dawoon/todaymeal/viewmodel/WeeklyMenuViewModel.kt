@@ -9,7 +9,7 @@ import com.dawoon.todaymeal.network.model.MealRowDto
 import com.dawoon.todaymeal.network.model.WeekRange
 import com.dawoon.todaymeal.network.onFailure
 import com.dawoon.todaymeal.network.onSuccess
-import com.dawoon.todaymeal.repository.SchoolRepository
+import com.dawoon.todaymeal.repository.MealRepository
 import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.util.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +20,7 @@ import java.util.Calendar
 import javax.inject.Inject
 @HiltViewModel
 class WeeklyMenuViewModel @Inject constructor(
-    private val repository: SchoolRepository,
+    private val repository: MealRepository,
     private val prefManager: PreferenceManager
 ): ViewModel(){
     private val _weeks = MutableStateFlow<List<WeekRange>>(emptyList())
