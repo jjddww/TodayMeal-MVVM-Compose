@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +55,7 @@ fun TimetableScreen(
     val textColor = if (isDark) DarkText else LightText
     val bgColor = if (isDark) DarkBackground else Color.White
     val timeTableTextColor = if (isDark) Color.White else Color.Black
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) { viewModel.fetchTimetable("20250331", "20250404") }
 
@@ -97,71 +99,102 @@ fun TimetableScreen(
             .background(DividerColor))
 
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(if (isDark) DarkBackground else Color.White)
-        ) {
-            //고정된 상단 요일 헤더 (스크롤x)
-            Row(
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 16.dp, start = 52.dp, end = 10.dp),
-                horizontalArrangement = Arrangement.SpaceAround
+                    .fillMaxSize()
+                    .background(if (isDark) DarkBackground else Color.White)
             ) {
-                days.forEach { day ->
-                    Text(
-                        text = day,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = timeTableTextColor,
-                        fontFamily = FontFamily(Font(R.font.suite_bold)),
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-            //스크롤 가능한 시간표 영역
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(maxPeriod) { index ->
-                    val period = index + 1
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    )
-                    {
-                        Text("$period",
-                            modifier = Modifier.width(32.dp),
-                            textAlign = TextAlign.Center,
-                            color = timeTableTextColor,
+                //고정된 상단 요일 헤더 (스크롤x)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 16.dp, start = 52.dp, end = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    days.forEach { day ->
+                        Text(
+                            text = day,
                             fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = timeTableTextColor,
                             fontFamily = FontFamily(Font(R.font.suite_bold)),
-                            fontWeight = FontWeight.Bold)
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
 
-                        (1..5).forEach { dayOfWeek ->
-                            val foundSubject = timetableData.find {
-                                it.dayOfWeek == dayOfWeek && it.period == period
-                            }?.subject
+                //스크롤 가능한 시간표 영역
+                LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(maxPeriod) { index ->
+                        val period = index + 1
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        )
+                        {
+                            Text("$period",
+                                modifier = Modifier.width(32.dp),
+                                textAlign = TextAlign.Center,
+                                color = timeTableTextColor,
+                                fontSize = 18.sp,
+                                fontFamily = FontFamily(Font(R.font.suite_bold)),
+                                fontWeight = FontWeight.Bold)
 
-                            val subject = if (foundSubject.isNullOrEmpty()) "정보\n없음" else foundSubject
+                            (1..5).forEach { dayOfWeek ->
+                                val foundSubject = timetableData.find {
+                                    it.dayOfWeek == dayOfWeek && it.period == period
+                                }?.subject
 
-                            val isDataEmpty = foundSubject.isNullOrEmpty()
+                                val subject = if (foundSubject.isNullOrEmpty()) "정보\n없음" else foundSubject
 
-                            val colorIdx = ((dayOfWeek - 1) * 7) + ((period - 1) % 7)
+                                val isDataEmpty = foundSubject.isNullOrEmpty()
 
-                            TimetableCell(
-                                subject = subject,
-                                colorIndex = colorIdx,
-                                isDataEmpty = isDataEmpty, // 새로 추가할 파라미터
-                                modifier = Modifier.weight(1f)
-                            )
+                                val colorIdx = ((dayOfWeek - 1) * 7) + ((period - 1) % 7)
+
+                                TimetableCell(
+                                    subject = subject,
+                                    colorIndex = colorIdx,
+                                    isDataEmpty = isDataEmpty, // 새로 추가할 파라미터
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
                 }
             }
+
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(bgColor.copy(alpha = 0.5f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = textColor)
+                }
+            }
+
+            uiState.errorMessage?.let { msg ->
+                Text(
+                    text = msg,
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                    color = Color.Red
+                )
+            }
+
+            uiState.infoMessage?.let { msg ->
+                Text(
+                    text = msg,
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                    color = textColor
+                )
+            }
         }
+
     }
 }
 
