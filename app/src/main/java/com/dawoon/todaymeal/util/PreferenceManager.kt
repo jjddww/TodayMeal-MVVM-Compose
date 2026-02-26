@@ -1,9 +1,15 @@
 package com.dawoon.todaymeal.util
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.updateAll
+import com.dawoon.todaymeal.AppWidget
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -24,7 +30,8 @@ interface PreferenceManager {
 
 
 class PreferenceManagerImpl @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    @ApplicationContext private val context: Context
 ) : PreferenceManager {
 
     companion object {
@@ -48,6 +55,22 @@ class PreferenceManagerImpl @Inject constructor(
                 else -> ""
             }
         }
+        try {
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(AppWidget::class.java)
+
+            glanceIds.forEach { glanceId ->
+                updateAppWidgetState(context, glanceId) { prefs ->
+                    prefs[SCHOOL_CODE] = code
+                    prefs[ATPT_CODE] = atpt
+                }
+            }
+
+            AppWidget().updateAll(context)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override suspend fun saveGradeAndClass(grade: String, classNum: String) {
@@ -59,6 +82,22 @@ class PreferenceManagerImpl @Inject constructor(
 
     override suspend fun clearAll() {
         dataStore.edit { it.clear() }
+
+        try {
+            val manager = GlanceAppWidgetManager(context)
+            val glanceIds = manager.getGlanceIds(AppWidget::class.java)
+
+            glanceIds.forEach { glanceId ->
+                updateAppWidgetState(context, glanceId) { prefs ->
+                    prefs.clear()
+                }
+            }
+
+            AppWidget().updateAll(context)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     override suspend fun getAtptCode(): String = dataStore.data.map { it[ATPT_CODE] ?: "" }.first()

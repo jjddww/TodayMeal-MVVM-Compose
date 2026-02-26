@@ -76,43 +76,73 @@ class AppWidget : GlanceAppWidget() {
             WidgetEntryPoint::class.java
         )
         val repository = entryPoint.schoolRepository()
-        val pref = entryPoint.prefManager()
-
-        val schoolCode = pref.getSchoolCode()
-        val atptCode = pref.getAtptCode()
-        val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
-
-        val mockToday = "20250514" /**임시 데이터!!!!!**/
-
-
-        var breakfastText = "학교를 설정해주세요."
-        var lunchText = "학교를 설정해주세요."
-        var dinnerText = "학교를 설정해주세요."
-
-        if (schoolCode.isNotEmpty()) {
-            breakfastText = WidgetMealMapper.getMealDisplayText(
-                repository.getMealServiceInfo(atptCode, schoolCode, "1", mockToday, mockToday), "아침"
-            )
-            lunchText = WidgetMealMapper.getMealDisplayText(
-                repository.getMealServiceInfo(atptCode, schoolCode, "2", mockToday, mockToday), "점심"
-            )
-            dinnerText = WidgetMealMapper.getMealDisplayText(
-                repository.getMealServiceInfo(atptCode, schoolCode, "3", mockToday, mockToday), "저녁"
-            )
-        }
 
         provideContent {
+            // 1. 위젯 자신의 상태(currentState)에서 직접 학교 코드 추출
             val prefs = currentState<Preferences>()
+            val schoolCode = prefs[stringPreferencesKey("WIDGET_SCHOOL_CODE")] ?: ""
+            val atptCode = prefs[stringPreferencesKey("WIDGET_ATPT_CODE")] ?: ""
             val currentType = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
+
+            val mockToday = "20250514"
+
+            // 2. 식단 데이터 로드 (suspend 호출을 위해 runBlocking 대신
+            // 위젯의 특수한 데이터 흐름을 활용하거나 간단히 처리)
+            // 사실 provideGlance 레벨에서 데이터를 가져오는게 좋으므로 구조를 살짝 틉니다.
+
+            val breakfastText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
+            else runBlocking {
+                WidgetMealMapper.getMealDisplayText(
+                    repository.getMealServiceInfo(
+                        atptCode,
+                        schoolCode,
+                        "1",
+                        mockToday,
+                        mockToday
+                    ), "아침"
+                )
+            }
+
+            val lunchText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
+            else runBlocking {
+                WidgetMealMapper.getMealDisplayText(
+                    repository.getMealServiceInfo(
+                        atptCode,
+                        schoolCode,
+                        "2",
+                        mockToday,
+                        mockToday
+                    ), "점심"
+                )
+            }
+
+            val dinnerText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
+            else runBlocking {
+                WidgetMealMapper.getMealDisplayText(
+                    repository.getMealServiceInfo(
+                        atptCode,
+                        schoolCode,
+                        "3",
+                        mockToday,
+                        mockToday
+                    ), "저녁"
+                )
+            }
 
             GlanceTheme {
                 WidgetContent(currentType, breakfastText, lunchText, dinnerText)
             }
         }
+
     }
 
     @Composable
-    private fun WidgetContent(currentType: String, breakfastData: String, lunchData: String, dinnerData: String) {
+    private fun WidgetContent(
+        currentType: String,
+        breakfastData: String,
+        lunchData: String,
+        dinnerData: String
+    ) {
         Column(
             modifier = GlanceModifier.fillMaxSize().padding(12.dp)
                 .background(GlanceTheme.colors.background).cornerRadius(16.dp)
@@ -154,10 +184,12 @@ class AppWidget : GlanceAppWidget() {
                 }
                 Text(
                     text = title,
-                    style = TextStyle(color = GlanceTheme.colors.onSurface,
+                    style = TextStyle(
+                        color = GlanceTheme.colors.onSurface,
                         fontSize = 18.sp,
                         fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 )
 
                 Spacer(modifier = GlanceModifier.width(8.dp))
@@ -210,7 +242,6 @@ class AppWidget : GlanceAppWidget() {
         }
     }
 }
-
 
 object WidgetMealMapper {
     fun getNextMealType(current: String): String = when (current) {
