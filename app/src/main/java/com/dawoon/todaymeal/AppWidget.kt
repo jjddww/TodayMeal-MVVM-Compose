@@ -62,6 +62,7 @@ import java.util.Locale
 import com.dawoon.todaymeal.network.ApiResult
 import com.dawoon.todaymeal.network.model.MealRowDto
 import com.dawoon.todaymeal.ui.theme.DarkBackground
+import com.dawoon.todaymeal.util.DateCalculator
 import kotlinx.coroutines.runBlocking
 import kotlin.collections.joinToString
 
@@ -78,17 +79,13 @@ class AppWidget : GlanceAppWidget() {
         val repository = entryPoint.schoolRepository()
 
         provideContent {
-            // 1. 위젯 자신의 상태(currentState)에서 직접 학교 코드 추출
             val prefs = currentState<Preferences>()
             val schoolCode = prefs[stringPreferencesKey("WIDGET_SCHOOL_CODE")] ?: ""
             val atptCode = prefs[stringPreferencesKey("WIDGET_ATPT_CODE")] ?: ""
             val currentType = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
 
-            val mockToday = "20250514"
-
-            // 2. 식단 데이터 로드 (suspend 호출을 위해 runBlocking 대신
-            // 위젯의 특수한 데이터 흐름을 활용하거나 간단히 처리)
-            // 사실 provideGlance 레벨에서 데이터를 가져오는게 좋으므로 구조를 살짝 틉니다.
+//            val mockToday = "20250514"
+            val today = DateCalculator.formatForApi(Date())
 
             val breakfastText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
@@ -97,8 +94,8 @@ class AppWidget : GlanceAppWidget() {
                         atptCode,
                         schoolCode,
                         "1",
-                        mockToday,
-                        mockToday
+                        today,
+                        today
                     ), "아침"
                 )
             }
@@ -110,8 +107,8 @@ class AppWidget : GlanceAppWidget() {
                         atptCode,
                         schoolCode,
                         "2",
-                        mockToday,
-                        mockToday
+                        today,
+                        today
                     ), "점심"
                 )
             }
@@ -123,8 +120,8 @@ class AppWidget : GlanceAppWidget() {
                         atptCode,
                         schoolCode,
                         "3",
-                        mockToday,
-                        mockToday
+                        today,
+                        today
                     ), "저녁"
                 )
             }

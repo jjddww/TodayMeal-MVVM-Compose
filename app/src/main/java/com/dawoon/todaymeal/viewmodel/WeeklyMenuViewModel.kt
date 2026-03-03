@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 @HiltViewModel
 class WeeklyMenuViewModel @Inject constructor(
@@ -36,16 +37,16 @@ class WeeklyMenuViewModel @Inject constructor(
 
     init {
         generateWeeksForCurrentMonth()
-//        val today = DateCalculator.formatForApi(Date())
-        val mockToday = "20250514"
-
-//        val initialIndex = _weeks.value.indexOfFirst { week ->
-//            today >= week.startDate && today <= week.endDate
-//        }
+        val today = DateCalculator.formatForApi(Date())
+//        val mockToday = "20250514"
 
         val initialIndex = _weeks.value.indexOfFirst { week ->
-            mockToday >= week.startDate && mockToday <= week.endDate
+            today >= week.startDate && today <= week.endDate
         }
+
+//        val initialIndex = _weeks.value.indexOfFirst { week ->
+//            mockToday >= week.startDate && mockToday <= week.endDate
+//        }
 
         if (initialIndex != -1) {
             _selectedWeekIndex.value = initialIndex
@@ -57,12 +58,12 @@ class WeeklyMenuViewModel @Inject constructor(
     }
 
     private fun generateWeeksForCurrentMonth() {
-//        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance()
 
-        /**임시로 데이터 보기 위해 강제 고정 **/
-        val calendar = Calendar.getInstance().apply {
-            set(2025, Calendar.MAY, 14)
-        }
+//        /**임시로 데이터 보기 위해 강제 고정 **/
+//        val calendar = Calendar.getInstance().apply {
+//            set(2025, Calendar.MAY, 14)
+//        }
 
         val targetMonth = calendar.get(Calendar.MONTH)
         val year = calendar.get(Calendar.YEAR)
