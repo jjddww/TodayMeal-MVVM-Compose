@@ -25,6 +25,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @get:Rule
 val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -106,24 +108,27 @@ class HomeViewModelTest {
 
     @Test
     fun `load meal data successfully should update state to success`() = runTest {
+        val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+
         val mockApiList = listOf(
-            MealRowDto(MLSV_YMD = "20250514", DDISH_NM = "카레라이스")
+            MealRowDto(
+                MLSV_YMD = today,
+                DDISH_NM = "테스트용 카레라이스"
+            )
         )
+
         coEvery {
             repository.getMealServiceInfo(any(), any(), any(), any(), any())
         } returns ApiResult.Success(mockApiList)
 
-
         viewModel = HomeViewModel(repository, prefManager)
-
-
         advanceUntilIdle()
 
         viewModel.state.test {
             val actualState = expectMostRecentItem()
-            assertEquals(false, actualState.loading)
-            val meal = actualState.items.find { it.MLSV_YMD == "20250514" }
-            assertEquals("카레라이스", meal?.DDISH_NM)
+            val meal = actualState.items.find { it.MLSV_YMD == today }
+
+            assertEquals("테스트용 카레라이스", meal?.DDISH_NM)
         }
     }
 

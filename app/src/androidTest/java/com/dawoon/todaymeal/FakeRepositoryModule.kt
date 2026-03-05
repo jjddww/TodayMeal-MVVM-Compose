@@ -1,5 +1,10 @@
 package com.dawoon.todaymeal.di
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.dawoon.todaymeal.network.ApiResult
 import com.dawoon.todaymeal.network.model.MealRowDto
 import com.dawoon.todaymeal.network.model.SchoolRowDto
@@ -10,8 +15,10 @@ import com.dawoon.todaymeal.repository.SettingRepository
 import com.dawoon.todaymeal.repository.TimetableRepository
 import com.dawoon.todaymeal.repository.TimetableSubject
 import com.dawoon.todaymeal.util.PreferenceManager
+import com.dawoon.todaymeal.util.PreferenceManagerImpl
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import io.mockk.coEvery
@@ -20,14 +27,18 @@ import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Singleton
 
+private val Context.testDataStore by androidx.datastore.preferences.preferencesDataStore(name = "test_user_prefs")
+
 @Module
 @TestInstallIn(
     components = [SingletonComponent::class],
     replaces = [
         RepositoryModule::class,
-        PreferenceModule::class
+        PreferenceModule::class,
+        DataStoreModule::class
     ]
 )
+
 object FakeRepositoryModule {
 
     @Provides
@@ -119,7 +130,16 @@ object FakeRepositoryModule {
 
     @Provides
     @Singleton
-    fun providePreferenceManager(): PreferenceManager {
-        return mockk<PreferenceManager>(relaxed = true)
+    fun provideTestDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.testDataStore
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferenceManager(
+        @ApplicationContext context: Context,
+        dataStore: DataStore<Preferences>
+    ): PreferenceManager {
+        return PreferenceManagerImpl(dataStore, context)
     }
 }
