@@ -19,7 +19,7 @@
 * Network: Retrofit2, Okhttp
 * DI: Hilt
 * Test: JUnit5, MockK, Robolectric
-* Server - 나이스 오픈 API 활용
+* Server - 나이스 Open API 활용
 
 </br>
 
