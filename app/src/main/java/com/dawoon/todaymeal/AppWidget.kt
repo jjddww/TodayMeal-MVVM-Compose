@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -65,7 +64,6 @@ import com.dawoon.todaymeal.network.model.MealRowDto
 import com.dawoon.todaymeal.ui.theme.DarkBackground
 import com.dawoon.todaymeal.util.DateCalculator
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlin.collections.joinToString
 
 val MEAL_TYPE_KEY = stringPreferencesKey("meal_type")
@@ -84,12 +82,12 @@ class AppWidget : GlanceAppWidget() {
             val prefs = currentState<Preferences>()
             val schoolCode = prefs[stringPreferencesKey("WIDGET_SCHOOL_CODE")] ?: ""
             val atptCode = prefs[stringPreferencesKey("WIDGET_ATPT_CODE")] ?: ""
-            val currentType = prefs[MEAL_TYPE_KEY] ?: stringResource(R.string.meal_type_lunch)
+            val currentType = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
 
 //            val mockToday = "20250514"
             val today = DateCalculator.formatForApi(Date())
 
-            val breakfastText = if (schoolCode.isEmpty()) stringResource(R.string.title_setting_school_info)
+            val breakfastText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
                     repository.getMealServiceInfo(
@@ -98,11 +96,11 @@ class AppWidget : GlanceAppWidget() {
                         "1",
                         today,
                         today
-                    ), context.getString(R.string.text_breakfast)
+                    ), "아침"
                 )
             }
 
-            val lunchText = if (schoolCode.isEmpty()) stringResource(R.string.title_setting_school_info)
+            val lunchText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
                     repository.getMealServiceInfo(
@@ -111,11 +109,11 @@ class AppWidget : GlanceAppWidget() {
                         "2",
                         today,
                         today
-                    ), context.getString(R.string.text_lunch)
+                    ), "점심"
                 )
             }
 
-            val dinnerText = if (schoolCode.isEmpty()) stringResource(R.string.title_setting_school_info)
+            val dinnerText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
                     repository.getMealServiceInfo(
@@ -124,7 +122,7 @@ class AppWidget : GlanceAppWidget() {
                         "3",
                         today,
                         today
-                    ), context.getString(R.string.text_dinner)
+                    ), "저녁"
                 )
             }
 
@@ -177,9 +175,9 @@ class AppWidget : GlanceAppWidget() {
                 Spacer(modifier = GlanceModifier.width(8.dp))
 
                 val title = when (currentType) {
-                    stringResource(R.string.meal_type_breakfast) -> stringResource(R.string.menu_breakfast_title)
-                    stringResource(R.string.meal_type_lunch) -> stringResource(R.string.menu_lunch_title)
-                    else -> stringResource(R.string.menu_dinner_title)
+                    "MORNING" -> "아침 메뉴"
+                    "LUNCH" -> "점심 메뉴"
+                    else -> "저녁 메뉴"
                 }
                 Text(
                     text = title,
@@ -272,7 +270,7 @@ object WidgetMealMapper {
 class NextMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            val current = prefs[MEAL_TYPE_KEY] ?: context.getString(R.string.meal_type_lunch)
+            val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
             val next = WidgetMealMapper.getNextMealType(current)
             prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = next }
         }
@@ -283,7 +281,7 @@ class NextMealAction : ActionCallback {
 class PrevMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            val current = prefs[MEAL_TYPE_KEY] ?: context.getString(R.string.meal_type_lunch)
+            val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
             val prev = WidgetMealMapper.getPrevMealType(current)
             prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = prev }
         }
