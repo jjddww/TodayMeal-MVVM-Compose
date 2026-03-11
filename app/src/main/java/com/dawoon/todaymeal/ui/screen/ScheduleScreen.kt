@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -76,7 +77,7 @@ fun ScheduleScreen(
         ) {
 
             Text(
-                text = "학사일정",
+                text = stringResource(R.string.text_schedule),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -139,7 +140,7 @@ fun ScheduleScreen(
                  CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             } else if (scheduleState.items.isEmpty()) {
                 Text(
-                    text = "해당 월에 학사일정이 없습니다.",
+                    text = stringResource(R.string.empty_schedule_desc),
                     modifier = Modifier.align(Alignment.Center),
                     color = textColor.copy(alpha = 0.5f),
                     fontFamily = FontFamily(Font(R.font.suite_semibold))

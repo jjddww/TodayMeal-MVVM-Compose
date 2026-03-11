@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +34,7 @@ fun NutritionDialog(
     val txtColor = if (isDark) DarkText else LightText
 
     val formattedInfo = if (nutritionInfo.isNullOrBlank()) {
-        "영양 정보가 제공되지 않는 날입니다."
+        stringResource(R.string.nutrition_empty_day_title)
     } else {
         nutritionInfo.replace("<br/>", "\n")
     }
@@ -42,7 +43,7 @@ fun NutritionDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "📊 영양 정보",
+                text = stringResource(R.string.nutrition_dialog_title),
                 fontSize = 20.sp,
                 fontFamily = FontFamily(Font(R.font.suite_bold)),
                 textAlign = TextAlign.Center,
@@ -58,7 +59,7 @@ fun NutritionDialog(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = carInfo ?: "정보없음",
+                    text = carInfo ?: stringResource(R.string.empty_info_dialog),
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     fontFamily = FontFamily(Font(R.font.suite_medium)),
@@ -83,8 +84,8 @@ fun NutritionDialog(
         },
         confirmButton = {
             Text(
-                text = "닫기",
-                color = txtColor, // 포인트 컬러 (본인 테마에 맞게 수정)
+                text = stringResource(R.string.text_close),
+                color = txtColor,
                 fontFamily = FontFamily(Font(R.font.suite_bold)),
                 modifier = Modifier
                     .padding(16.dp)

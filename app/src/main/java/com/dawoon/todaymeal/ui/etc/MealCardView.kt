@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -90,7 +91,7 @@ fun MealCardView(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = formatMealText(meal.DDISH_NM ?: "정보가 없습니다"),
+                        text = formatMealText(meal.DDISH_NM ?: stringResource(R.string.empty_info)),
                         textAlign = TextAlign.Center,
                         color = textColor,
                         fontSize = 19.sp,

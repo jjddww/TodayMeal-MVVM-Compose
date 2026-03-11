@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -71,7 +72,7 @@ fun WeeklyMenuScreen(viewModel: WeeklyMenuViewModel = hiltViewModel()) {
         Spacer(modifier = Modifier.height(40.dp))
 
         Text(
-            text = "주간 메뉴",
+            text = stringResource(R.string.text_weekly_menu),
             fontSize = 24.sp,
             fontFamily = FontFamily(Font(R.font.suite_extrabold)),
             color = textColor,

@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -119,6 +120,13 @@ fun HomeScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboard.current
     val emailAddress = "jdwoon10@gmail.com"
+    val emailSubject = stringResource(R.string.question_email_title)
+    val enterEmailApp = stringResource(R.string.toast_enter_email_app)
+    val copyEmailAddress = stringResource(R.string.toast_copy_email_address)
+    val textBreakfast = stringResource(R.string.text_breakfast)
+    val textLunch = stringResource(R.string.text_lunch)
+    val textDinner = stringResource(R.string.text_dinner)
+
 
     LaunchedEffect(pagerState.currentPage) {
         mealData.items.getOrNull(pagerState.currentPage)?.let { meal ->
@@ -142,8 +150,8 @@ fun HomeScreen(
     // 다이얼로그 표시 로직
     if (viewModel.showNutritionDialog) {
         NutritionDialog(
-            carInfo = currentMeal?.CAL_INFO ?: "정보 없음",
-            nutritionInfo = currentMeal?.NTR_INFO ?: "영양 정보가 없습니다.",
+            carInfo = currentMeal?.CAL_INFO ?: stringResource(R.string.nutrition_dialog_empty_cal_info),
+            nutritionInfo = currentMeal?.NTR_INFO ?: stringResource(R.string.nutrition_dialog_empty_ntr_info),
             onDismiss = { viewModel.closeNutritionDialog() }
         )
     }
@@ -153,7 +161,7 @@ fun HomeScreen(
             onDismissRequest = { showResetDialog = false },
             title = {
                 Text(
-                    text = "설정 초기화",
+                    text = stringResource(R.string.reset_setting),
                     fontSize = 17.sp,
                     color = textColor,
                     fontFamily = FontFamily(Font(R.font.suite_bold)),
@@ -161,7 +169,7 @@ fun HomeScreen(
             },
             text = {
                 Text(
-                    text = "저장된 학교 및 학년/반 정보가\n모두 삭제됩니다.\n정말 초기화하시겠습니까?",
+                    text = stringResource(R.string.reset_setting_desc),
                     fontSize = 15.sp,
                     color = textColor,
                     fontFamily = FontFamily(Font(R.font.suite_medium))
@@ -181,7 +189,7 @@ fun HomeScreen(
                     }
                 ) {
                     Text(
-                        "예",
+                        text = stringResource(R.string.text_yes),
                         color = Color.Red,
                         fontFamily = FontFamily(Font(R.font.suite_semibold)),
                         fontWeight = FontWeight.Bold)
@@ -190,7 +198,7 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(onClick = { showResetDialog = false }) {
                     Text(
-                        "아니오",
+                        text = stringResource(R.string.text_no),
                         color = textColor,
                         fontFamily = FontFamily(Font(R.font.suite_semibold)),
                         fontWeight = FontWeight.Bold)
@@ -207,7 +215,7 @@ fun HomeScreen(
             containerColor = if (isDark) DarkBackground else Color.White,
             title = {
                 Text(
-                    "문의사항이 있으신가요?",
+                    stringResource(R.string.alert_dialog_question_title),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily(Font(R.font.suite_bold)),
@@ -217,7 +225,7 @@ fun HomeScreen(
             text = {
                 Column {
                     Text(
-                        "아래의 주소를 눌러\n메일로 의견을 남겨주세요!",
+                        stringResource(R.string.alert_dialog_question_desc),
                         fontSize = 14.sp,
                         color = textColor,
                         fontFamily = FontFamily(Font(R.font.suite_medium))
@@ -240,16 +248,18 @@ fun HomeScreen(
                                     clipboardManager.setClipEntry(clipEntry)
                                 }
 
+
+
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     data = "mailto:$emailAddress".toUri()
-                                    putExtra(Intent.EXTRA_SUBJECT, "[오늘의 급식] 문의사항")
+                                    putExtra(Intent.EXTRA_SUBJECT, emailSubject)
                                 }
 
                                 try {
                                     context.startActivity(intent)
-                                    Toast.makeText(context, "메일 앱으로 연결합니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, enterEmailApp, Toast.LENGTH_SHORT).show()
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "메일 앱이 없어 주소가 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, copyEmailAddress, Toast.LENGTH_SHORT).show()
                                 }
                             }
                             .padding(16.dp),
@@ -267,7 +277,7 @@ fun HomeScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showContactDialog = false }) {
-                    Text("닫기",
+                    Text(stringResource(R.string.text_close),
                         color = textColor,
                         fontFamily = FontFamily(Font(R.font.suite_medium))
                     )
@@ -286,7 +296,7 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(60.dp))
                 Text(
-                    "설정",
+                    stringResource(R.string.text_setting),
                     modifier = Modifier.padding(16.dp),
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.suite_bold)),
@@ -298,7 +308,7 @@ fun HomeScreen(
                 NavigationDrawerItem(
                     label = {
                         Text(
-                            "설정 초기화",
+                            stringResource(R.string.reset_setting),
                             fontSize = 17.sp,
                             fontFamily = FontFamily(Font(R.font.suite_semibold)),
                             color = textColor
@@ -316,7 +326,7 @@ fun HomeScreen(
                 NavigationDrawerItem(
                     label = {
                         Text(
-                            "문의 사항",
+                            stringResource(R.string.text_question),
                             fontSize = 17.sp,
                             fontFamily = FontFamily(Font(R.font.suite_semibold)),
                             color = textColor
@@ -334,7 +344,7 @@ fun HomeScreen(
                 NavigationDrawerItem(
                     label = {
                         Text(
-                            "개인정보처리방침",
+                           stringResource(R.string.text_privacy_policy),
                             fontSize = 17.sp,
                             fontFamily = FontFamily(Font(R.font.suite_semibold)),
                             color = textColor
@@ -466,9 +476,9 @@ fun HomeScreen(
                         selectedType = selectedType,
                         onTypeSelected = { newName ->
                             val typeCode = when(newName) {
-                                "아침" -> "1"
-                                "점심" -> "2"
-                                "저녁" -> "3"
+                                textBreakfast -> "1"
+                                textLunch -> "2"
+                                textDinner -> "3"
                                 else -> "2"
                             }
                             viewModel.updateMealType(typeCode)
@@ -508,7 +518,7 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.width(11.dp))
 
                             Text(
-                                text = "영양정보",
+                                text = stringResource(R.string.nutrition_info),
                                 fontSize = 22.sp,
                                 fontFamily = FontFamily(Font(R.font.suite_bold)),
                                 color = textColor,

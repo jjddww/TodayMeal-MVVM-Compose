@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -86,7 +87,7 @@ fun ScheduleCard(schedule: SchoolScheduleRowDto) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = formatMealText(schedule.EVENT_NM ?: "정보 없음"),
+                text = formatMealText(schedule.EVENT_NM ?: stringResource(R.string.empty_info_dialog)),
                 color = menuColor,
                 fontSize = 20.sp,
                 lineHeight = 26.sp,

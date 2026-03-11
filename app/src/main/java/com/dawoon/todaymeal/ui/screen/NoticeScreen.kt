@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ fun NoticeScreen() {
                         .background(if (isDark) DarkBackground else Color.White)
             ) {
 
-                Text(text = "공지사항",
+                Text(text = stringResource(R.string.text_notice),
                     modifier =
                         Modifier
                             .align(Alignment.Center),
@@ -92,7 +93,7 @@ fun NoticeScreen() {
             onDismissRequest = { selectedNotice = null }, // 팝업 밖을 누르면 닫기
             confirmButton = {
                 TextButton(onClick = { selectedNotice = null }) {
-                    Text("확인", color = textColor, fontFamily = FontFamily(Font(R.font.suite_bold)))
+                    Text(stringResource(R.string.text_confirm), color = textColor, fontFamily = FontFamily(Font(R.font.suite_bold)))
                 }
             },
             title = {

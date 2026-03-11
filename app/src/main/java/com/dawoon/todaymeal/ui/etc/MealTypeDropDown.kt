@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -35,13 +36,16 @@ fun MealTypeDropdown(
     onTypeSelected: (String) -> Unit // 변경 시 알림
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val options = listOf("아침", "점심", "저녁")
+    val options = listOf(
+        stringResource(R.string.text_breakfast),
+        stringResource(R.string.text_lunch),
+        stringResource(R.string.text_dinner))
 
     val displayName = when(selectedType) {
-        "1" -> "아침"
-        "2" -> "점심"
-        "3" -> "저녁"
-        else -> "점심"
+        "1" -> stringResource(R.string.text_breakfast)
+        "2" -> stringResource(R.string.text_lunch)
+        "3" -> stringResource(R.string.text_dinner)
+        else -> stringResource(R.string.text_lunch)
     }
     val isDark = isSystemInDarkTheme()
     val textColor = if (isDark) DarkText else LightText

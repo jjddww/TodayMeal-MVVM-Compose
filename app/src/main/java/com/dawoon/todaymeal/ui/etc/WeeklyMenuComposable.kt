@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -58,8 +59,11 @@ fun MealTypeTabs(
     onTypeSelected: (String) -> Unit
 ) {
     val isDark = isSystemInDarkTheme()
-    val textColor = if (isDark) DarkText else LightText
-    val titles = listOf("아침", "점심", "저녁")
+    val titles = listOf(
+        stringResource(R.string.text_breakfast),
+        stringResource(R.string.text_lunch),
+        stringResource(R.string.text_dinner)
+    )
     val types = listOf("1", "2", "3") // API 코드와 매칭
 
     TabRow(
@@ -191,7 +195,7 @@ fun WeeklyMealCard(meal: MealRowDto) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = formatMealText(meal.DDISH_NM ?: "정보 없음"),
+                text = formatMealText(meal.DDISH_NM ?: stringResource(R.string.empty_info_dialog)),
                 color = menuColor,
                 fontSize = 20.sp,
                 lineHeight = 26.sp,

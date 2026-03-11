@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +42,7 @@ import com.dawoon.todaymeal.ui.theme.DarkText
 import com.dawoon.todaymeal.ui.theme.DividerColor
 import com.dawoon.todaymeal.ui.theme.LightText
 import com.dawoon.todaymeal.ui.theme.TimetableColorList
+import com.dawoon.todaymeal.util.DateCalculator
 import com.dawoon.todaymeal.viewmodel.TimetableViewModel
 
 @Composable
@@ -57,7 +59,7 @@ fun TimetableScreen(
     val timeTableTextColor = if (isDark) Color.White else Color.Black
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.fetchTimetable("20250331", "20250404") }
+    LaunchedEffect(Unit) { viewModel.fetchTimetable(DateCalculator.getThisMonday(), DateCalculator.getThisFriday()) }
 
     Column(modifier =
         Modifier
@@ -78,7 +80,7 @@ fun TimetableScreen(
         ) {
 
             Text(
-                text = "시간표",
+                text = stringResource(R.string.text_timetable),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -149,7 +151,7 @@ fun TimetableScreen(
                                     it.dayOfWeek == dayOfWeek && it.period == period
                                 }?.subject
 
-                                val subject = if (foundSubject.isNullOrEmpty()) "정보\n없음" else foundSubject
+                                val subject = if (foundSubject.isNullOrEmpty()) stringResource(R.string.text_empty_timetable_info) else foundSubject
 
                                 val isDataEmpty = foundSubject.isNullOrEmpty()
 

@@ -1,6 +1,10 @@
 package com.dawoon.todaymeal.util
 
 import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -126,5 +130,17 @@ object DateCalculator {
             Calendar.FRIDAY -> 5
             else -> 0
         }
+    }
+    fun getThisMonday(): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        return apiFormatter.format(calendar.time)
+    }
+
+    fun getThisFriday(): String {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        calendar.add(Calendar.DAY_OF_YEAR, 4)
+        return apiFormatter.format(calendar.time)
     }
 }

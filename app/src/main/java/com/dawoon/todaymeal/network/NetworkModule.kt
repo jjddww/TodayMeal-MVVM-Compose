@@ -40,8 +40,6 @@ object NetworkModule {
     @Provides @Singleton
     fun provideNeisApi(retrofit: Retrofit): Apis =
         retrofit.create(Apis::class.java)
-
-    // TODO: 실제 프로젝트에선 BuildConfig나 DataStore에서 주입 권장
     @Provides @Singleton
     @Named("NEIS_API_KEY")
     fun provideNeisApiKey(): String = "4930ffc3cea34726a5411d6d31d65533"

@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -93,14 +94,14 @@ fun SettingScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "학교를 설정해주세요",
+                text = stringResource(R.string.title_setting_school_info),
                 fontFamily = FontFamily(Font(R.font.suite_extrabold)),
                 fontWeight = FontWeight.Bold,
                 fontSize = 24.sp,
                 color = if (isDark) SettingTitleDark else SettingTitleLight
             )
             Text(
-                text = "(추후 언제든 변경 가능합니다)",
+                text = stringResource(R.string.desc_setting_school_info),
                 fontFamily = FontFamily(Font(R.font.suite_semibold)),
                 color = if (isDark) SettingDark else SettingLight,
                 fontSize = 16.sp,
@@ -110,7 +111,9 @@ fun SettingScreen(
             OutlinedTextField(
                 value = viewModel.searchQuery,
                 onValueChange = { viewModel.searchQuery = it },
-                placeholder = { Text("학교 이름을 입력하세요", color = Color.Gray) },
+                placeholder = {
+                    Text(stringResource(R.string.enter_school_name),
+                        color = Color.Gray) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
@@ -153,7 +156,7 @@ fun SettingScreen(
                 if (viewModel.isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("확인", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(stringResource(R.string.text_confirm), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
@@ -166,7 +169,7 @@ fun SettingScreen(
                 containerColor = if (isDark) Color(0xFF252525) else Color.White,
                 title = {
                     Text(
-                        "학교를 선택해주세요",
+                        stringResource(R.string.select_school_title),
                         fontSize = 20.sp,
                         fontFamily = FontFamily(Font(R.font.suite_medium)),
                         fontWeight = FontWeight.Bold
@@ -175,7 +178,7 @@ fun SettingScreen(
                 text = {
                     Box(modifier = Modifier.heightIn(max = 400.dp)) {
                         if (viewModel.schoolList.value.isEmpty()) {
-                            Text("검색 결과가 없습니다.",
+                            Text(stringResource(R.string.empty_search_result),
                                 modifier = Modifier.padding(vertical = 20.dp),
                                 fontSize = 14.sp,
                                 fontFamily = FontFamily(Font(R.font.suite_medium)),)
@@ -206,7 +209,7 @@ fun SettingScreen(
                 onDismissRequest = { viewModel.showGradePopup = false },
                 containerColor = if (isDark) SettingContainerColor else Color.White,
                 title = {
-                    Text("상세 정보를 입력해주세요",
+                    Text(stringResource(R.string.enter_details_info),
                         fontFamily = FontFamily(Font(R.font.suite_medium)),
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp)
@@ -218,11 +221,15 @@ fun SettingScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("학년", fontFamily = FontFamily(Font(R.font.suite_regular)), color = Color.Gray)
+                                Text(stringResource(R.string.text_grade), fontFamily = FontFamily(Font(R.font.suite_regular)), color = Color.Gray)
                                 OutlinedTextField(
                                     value = viewModel.inputGrade,
                                     onValueChange = { if (it.length <= 1) viewModel.inputGrade = it },
-                                    placeholder = { Text("예: 3") },
+                                    placeholder = {
+                                        Text(
+                                        stringResource(R.string.placeholder_input_grade),
+                                            color = Color.Gray,
+                                    ) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
@@ -235,11 +242,13 @@ fun SettingScreen(
 
                             // 반 입력 창
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("반", fontFamily = FontFamily(Font(R.font.suite_regular)), color = Color.Gray)
+                                Text(stringResource(R.string.text_class), fontFamily = FontFamily(Font(R.font.suite_regular)), color = Color.Gray)
                                 OutlinedTextField(
                                     value = viewModel.inputClass,
                                     onValueChange = { if (it.length <= 2) viewModel.inputClass = it },
-                                    placeholder = { Text("예: 1") },
+                                    placeholder = {
+                                        Text(stringResource(R.string.placeholder_input_class),
+                                            color = Color.Gray) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
@@ -251,7 +260,7 @@ fun SettingScreen(
                             }
                         }
                         Text(
-                            text = "* 숫자로만 입력해주세요",
+                            text = stringResource(R.string.input_info_caution),
                             fontFamily = FontFamily(Font(R.font.suite_regular)),
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 8.dp)
@@ -274,7 +283,7 @@ fun SettingScreen(
                         enabled = viewModel.inputGrade.isNotBlank() && viewModel.inputClass.isNotBlank(),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("설정 완료", fontWeight = FontWeight.Bold, fontFamily = FontFamily(Font(R.font.suite_regular)))
+                        Text(stringResource(R.string.complete_setting_text), fontWeight = FontWeight.Bold, fontFamily = FontFamily(Font(R.font.suite_regular)))
                     }
                 }
             )
@@ -291,7 +300,7 @@ fun SchoolItem(school: SchoolRowDto, onClick: () -> Unit) {
             .padding(vertical = 12.dp, horizontal = 4.dp)
     ) {
         Text(
-            text = school.SCHUL_NM ?: "알 수 없는 학교",
+            text = school.SCHUL_NM ?: stringResource(R.string.unknown_school),
             fontFamily = FontFamily(Font(R.font.suite_medium)),
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
