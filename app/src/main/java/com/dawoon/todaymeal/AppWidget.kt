@@ -1,16 +1,7 @@
 package com.dawoon.todaymeal
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.fonts.Font
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -21,9 +12,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.ActionCallback
@@ -52,21 +41,15 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.ColorProvider
 import com.dawoon.todaymeal.di.WidgetEntryPoint
-import com.dawoon.todaymeal.util.formatMealText
-import dagger.hilt.android.EntryPointAccessors
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.dawoon.todaymeal.network.ApiResult
 import com.dawoon.todaymeal.network.model.MealRowDto
-import com.dawoon.todaymeal.ui.theme.DarkBackground
 import com.dawoon.todaymeal.util.DateCalculator
+import com.dawoon.todaymeal.util.WidgetKeys
+import com.dawoon.todaymeal.util.formatMealText
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.runBlocking
-import kotlin.collections.joinToString
-
-val MEAL_TYPE_KEY = stringPreferencesKey("meal_type")
+import java.util.Date
 
 class AppWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -77,52 +60,55 @@ class AppWidget : GlanceAppWidget() {
             WidgetEntryPoint::class.java
         )
         val repository = entryPoint.schoolRepository()
+        val prefManager = entryPoint.prefManager()
 
         provideContent {
             val prefs = currentState<Preferences>()
-            val schoolCode = prefs[stringPreferencesKey("WIDGET_SCHOOL_CODE")] ?: ""
-            val atptCode = prefs[stringPreferencesKey("WIDGET_ATPT_CODE")] ?: ""
-            val currentType = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
 
-//            val mockToday = "20250514"
+            var schoolCode = prefs[WidgetKeys.SCHOOL_CODE] ?: ""
+            var atptCode = prefs[WidgetKeys.ATPT_CODE] ?: ""
+            val currentType = prefs[WidgetKeys.MEAL_TYPE] ?: "LUNCH"
+
+
+            if (schoolCode.isEmpty() || atptCode.isEmpty()) {
+                runBlocking {
+                    val savedSchoolCode = prefManager.getSchoolCode()
+                    val savedAtptCode = prefManager.getAtptCode()
+
+                    if (savedSchoolCode.isNotEmpty()) {
+                        schoolCode = savedSchoolCode
+                        atptCode = savedAtptCode
+
+                        updateAppWidgetState(context, PreferencesGlanceStateDefinition, id) { p ->
+                            p.toMutablePreferences().apply {
+                                this[WidgetKeys.SCHOOL_CODE] = schoolCode
+                                this[WidgetKeys.ATPT_CODE] = atptCode
+                            }
+                        }
+                    }
+                }
+            }
+
             val today = DateCalculator.formatForApi(Date())
 
             val breakfastText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
-                    repository.getMealServiceInfo(
-                        atptCode,
-                        schoolCode,
-                        "1",
-                        today,
-                        today
-                    ), "아침"
+                    repository.getMealServiceInfo(atptCode, schoolCode, "1", today, today), "아침"
                 )
             }
 
             val lunchText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
-                    repository.getMealServiceInfo(
-                        atptCode,
-                        schoolCode,
-                        "2",
-                        today,
-                        today
-                    ), "점심"
+                    repository.getMealServiceInfo(atptCode, schoolCode, "2", today, today), "점심"
                 )
             }
 
             val dinnerText = if (schoolCode.isEmpty()) "학교를 설정해주세요."
             else runBlocking {
                 WidgetMealMapper.getMealDisplayText(
-                    repository.getMealServiceInfo(
-                        atptCode,
-                        schoolCode,
-                        "3",
-                        today,
-                        today
-                    ), "저녁"
+                    repository.getMealServiceInfo(atptCode, schoolCode, "3", today, today), "저녁"
                 )
             }
 
@@ -130,7 +116,6 @@ class AppWidget : GlanceAppWidget() {
                 WidgetContent(currentType, breakfastText, lunchText, dinnerText)
             }
         }
-
     }
 
     @Composable
@@ -146,33 +131,21 @@ class AppWidget : GlanceAppWidget() {
         ) {
             Spacer(modifier = GlanceModifier.height(20.dp))
 
-
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Image(
                     provider = ImageProvider(R.drawable.ic_widget_left_arrow),
-                    contentDescription = "left arrow",
+                    contentDescription = "이전",
                     modifier = GlanceModifier
                         .size(30.dp)
                         .clickable(actionRunCallback<PrevMealAction>()),
                     colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface)
                 )
 
-
                 Spacer(modifier = GlanceModifier.width(10.dp))
-
-
-                Image(
-                    provider = ImageProvider(R.drawable.icn_home),
-                    contentDescription = null,
-                    modifier = GlanceModifier.size(25.dp)
-                )
-
-                Spacer(modifier = GlanceModifier.width(8.dp))
 
                 val title = when (currentType) {
                     "MORNING" -> "아침 메뉴"
@@ -189,21 +162,11 @@ class AppWidget : GlanceAppWidget() {
                     )
                 )
 
-                Spacer(modifier = GlanceModifier.width(8.dp))
-
-
-                Image(
-                    provider = ImageProvider(R.drawable.icn_home),
-                    contentDescription = null,
-                    modifier = GlanceModifier.size(25.dp)
-                )
-
                 Spacer(modifier = GlanceModifier.width(10.dp))
-
 
                 Image(
                     provider = ImageProvider(R.drawable.ic_widget_right_arrow),
-                    contentDescription = "left arrow",
+                    contentDescription = "다음",
                     modifier = GlanceModifier
                         .size(30.dp)
                         .clickable(actionRunCallback<NextMealAction>()),
@@ -218,7 +181,6 @@ class AppWidget : GlanceAppWidget() {
                 "LUNCH" -> lunchData
                 else -> dinnerData
             }
-
 
             Box(modifier = GlanceModifier.defaultWeight().fillMaxWidth()) {
                 LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
@@ -266,13 +228,12 @@ object WidgetMealMapper {
     }
 }
 
-
 class NextMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
+            val current = prefs[WidgetKeys.MEAL_TYPE] ?: "LUNCH"
             val next = WidgetMealMapper.getNextMealType(current)
-            prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = next }
+            prefs.toMutablePreferences().apply { this[WidgetKeys.MEAL_TYPE] = next }
         }
         AppWidget().update(context, glanceId)
     }
@@ -281,9 +242,9 @@ class NextMealAction : ActionCallback {
 class PrevMealAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
-            val current = prefs[MEAL_TYPE_KEY] ?: "LUNCH"
+            val current = prefs[WidgetKeys.MEAL_TYPE] ?: "LUNCH"
             val prev = WidgetMealMapper.getPrevMealType(current)
-            prefs.toMutablePreferences().apply { this[MEAL_TYPE_KEY] = prev }
+            prefs.toMutablePreferences().apply { this[WidgetKeys.MEAL_TYPE] = prev }
         }
         AppWidget().update(context, glanceId)
     }

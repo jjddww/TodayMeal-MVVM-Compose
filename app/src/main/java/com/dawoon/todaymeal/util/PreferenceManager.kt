@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.updateAll
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.dawoon.todaymeal.AppWidget
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +28,6 @@ interface PreferenceManager {
     suspend fun getClass(): String
     val schoolNameFlow: Flow<String>
 }
-
 
 class PreferenceManagerImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>,
@@ -55,17 +55,22 @@ class PreferenceManagerImpl @Inject constructor(
                 else -> ""
             }
         }
+
         try {
             val manager = GlanceAppWidgetManager(context)
             val glanceIds = manager.getGlanceIds(AppWidget::class.java)
 
             glanceIds.forEach { glanceId ->
-                updateAppWidgetState(context, glanceId) { prefs ->
-                    prefs[SCHOOL_CODE] = code
-                    prefs[ATPT_CODE] = atpt
+                // 핵심 수정 사항: PreferencesGlanceStateDefinition 파라미터를 추가했습니다.
+                updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+                    prefs.toMutablePreferences().apply {
+                        this[SCHOOL_CODE] = code
+                        this[ATPT_CODE] = atpt
+                    }
                 }
             }
 
+            // 모든 위젯 인스턴스 즉시 갱신
             AppWidget().updateAll(context)
 
         } catch (e: Exception) {
@@ -88,13 +93,11 @@ class PreferenceManagerImpl @Inject constructor(
             val glanceIds = manager.getGlanceIds(AppWidget::class.java)
 
             glanceIds.forEach { glanceId ->
-                updateAppWidgetState(context, glanceId) { prefs ->
-                    prefs.clear()
+                updateAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId) { prefs ->
+                    prefs.toMutablePreferences().apply { this.clear() }
                 }
             }
-
             AppWidget().updateAll(context)
-
         } catch (e: Exception) {
             e.printStackTrace()
         }
